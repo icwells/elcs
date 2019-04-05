@@ -34,6 +34,7 @@ class DatabaseMerger():
 		# Reads dict of case/control records
 		first = True
 		ret = {}
+		print(("\tReading {} file...").format(k))
 		with open(self.infiles[k], "r") as f:
 			for line in f:
 				if first == False:
