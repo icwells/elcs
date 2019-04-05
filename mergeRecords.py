@@ -13,8 +13,8 @@ class DatabaseMerger():
 		self.outdir = None
 		self.ucr = {}
 		self.case = {}
-		#self.control = {}
-		self.casecontrol = {}
+		self.controlids = set()
+		self.caseids = set()
 		self.__checkInfiles__()
 		self.__setPath__()
 
@@ -58,7 +58,8 @@ class DatabaseMerger():
 				line = line.strip()
 				if first == False:
 					s = line.split(d)
-					self.casecontrol[s[h["CaseID"]]] = s[h["controlId"]]
+					self.caseids.add(s[h["CaseID"]])
+					self.controlids.add(s[h["controlId"]])
 				else:
 					d = getDelim(line)
 					h = setHeader(line.split(d))
@@ -79,11 +80,10 @@ class DatabaseMerger():
 		misses = {}
 		outfile = self.outdir + "missingControl.csv"
 		h = self.headers["case"]
-		if len(self.casecontrol) != len(self.case):
-			print(("\n\t[Warning] Number of case records {:,} does not equal case controls: {:,}\n").format(len(self.case), len(self.casecontrol)))
+		if len(self.caseids) != len(self.case):
+			print(("\n\t[Warning] Number of case records {:,} does not equal case controls: {:,}\n").format(len(self.case), len(self.caseids)))
 		for k in self.case.keys():
-			egid = self.case[k][h["egid"]]
-			if egid not in self.casecontrol.keys() or self.casecontrol[egid] != k or k not in self.ucr.keys():
+			if k not in self.caseids or k not in self.ucr.keys():
 				misses[k] = self.case[k]
 		for k in misses.keys():
 			 # Delete in seperate loop
