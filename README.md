@@ -12,4 +12,4 @@ All input files are declared within the manifest.py file, and all output will be
 
 ### Merge UCR and UPDB records
 
-	'C:\Program Files (x86)\Python\Python37-32\python.exe' mergeRecords.py
+	& 'C:\Program Files (x86)\Python\Python37-32\python.exe' mergeRecords.py

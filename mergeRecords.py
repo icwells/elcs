@@ -37,30 +37,32 @@ class DatabaseMerger():
 		print(("\tReading {} file...").format(k))
 		with open(self.infiles[k], "r") as f:
 			for line in f:
+				line = line.strip()
 				if first == False:
-					s = line.strip().split(d)
-					self.casecontrol[s[h["personid"]]] = s
+					s = line.split(d)
+					ret[s[h["personid"]]] = s
 				else:
-					first = True
 					d = getDelim(line)
 					h = setHeader(line.split(d))
 					# Store header for later
 					self.headers[k] = h
+					first = False
 		return ret
 
 	def __setCaseControl__(self):
 		# Reads dict of case/control ids
 		first = True
-		k = "casecontrols"
+		k = "casecontrol"
 		with open(self.infiles[k], "r") as f:
 			for line in f:
+				line = line.strip()
 				if first == False:
-					s = line.strip().split(d)
+					s = line.split(d)
 					self.casecontrol[s[h["CaseID"]]] = s[h["controlId"]]
 				else:
-					first = True
 					d = getDelim(line)
 					h = setHeader(line.split(d))
+					first = False
 
 #-----------------------------------------------------------------------------
 
@@ -74,37 +76,42 @@ class DatabaseMerger():
 
 	def __checkCaseRecords__(self):
 		# Compares case eg and person IDs against case/control IDs
-		misses = []
+		misses = {}
 		outfile = self.outdir + "missingControl.csv"
 		h = self.headers["case"]
-		if len(self.casecontrol) != len(self.cases):
-			print(("\n\t[Warning] Number of case records {} does not equal case controls: {}\n").format(len(self.casecontrol), len(self.cases)))
+		if len(self.casecontrol) != len(self.case):
+			print(("\n\t[Warning] Number of case records {:,} does not equal case controls: {:,}\n").format(len(self.case), len(self.casecontrol)))
 		for k in self.case.keys():
 			egid = self.case[k][h["egid"]]
 			if egid not in self.casecontrol.keys() or self.casecontrol[egid] != k or k not in self.ucr.keys():
-				misses.append(self.case[k])
-				del self.case[k]
-		self.__writeList__(outfile, misses, self.headers["case"].values)
+				misses[k] = self.case[k]
+		for k in misses.keys():
+			 # Delete in seperate loop
+			del self.case[k]
+		if len(misses) > 0:
+			self.__writeList__(outfile, misses.values(), self.headers["case"].keys())
 
 	def __mergeCaseRecords__(self):
 		# Merges ucr and case records
 		outfile = self.outdir + "mergedUCRrecords.csv"
 		# Merge headers
-		tail = self.headers["ucr"].values
-		del tail[self.headers["ucr"]["personid"]]
-		header = self.headers["case"].values.extend(tail)
-		for k in self.cases.keys():
+		header = list(self.headers["case"].keys())
+		h = self.headers["ucr"]
+		tail = list(h.keys())
+		del tail[h["personid"]]
+		header.extend(tail)
+		for k in self.case.keys():
 			row = self.ucr[k]
 			# Delete redundant column
-			del row[self.headers["ucr"]["personid"]]
-			self.cases[k].extend(row)
-		self.__writeList__(outfile, self.cases.values, header)
+			del row[h["personid"]]
+			self.case[k].extend(row)
+		self.__writeList__(outfile, self.case.values(), header)
 
 	def merge(self):
 		# Merges UCR and UPDB data
 		self.__setCaseControl__()
 		self.ucr = self.__setCases__("ucr")
-		self.cases = self.__setCases__("case")
+		self.case = self.__setCases__("case")
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
 
@@ -113,6 +120,7 @@ def main():
 	print("\n\tMerging UPDB and UCR records...")
 	merger = DatabaseMerger()
 	merger.merge()
+	print(("\tFinished. Run time: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
 	main()

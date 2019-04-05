@@ -11,6 +11,7 @@ def setHeader(row):
 	# Returns ordered dict of header indeces
 	ret = OrderedDict()
 	for idx, i in enumerate(row):
+		i = i.replace('"', '')
 		ret[i] = idx
 	return ret
 
