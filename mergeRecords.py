@@ -15,7 +15,7 @@ class DatabaseMerger():
 		self.case = {}
 		#self.control = {}
 		self.casecontrol = {}
-		self.__setInfiles__()
+		self.__checkInfiles__()
 		self.__setPath__()
 
 	def __setPath__(self):
@@ -66,7 +66,7 @@ class DatabaseMerger():
 
 	def __writeList__(self, outfile, l, header):
 		# Writes list to csv
-		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile))
+		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
 			out.write(",".join(header) + "\n")
 			for i in l:
@@ -78,12 +78,12 @@ class DatabaseMerger():
 		outfile = self.outdir + "missingControl.csv"
 		h = self.headers["case"]
 		if len(self.casecontrol) != len(self.cases):
-			print(("\n\t[Warning] Number of case records {} does not equal case controls: {}\n").format(len(self.casecontrol), len(self.cases))
+			print(("\n\t[Warning] Number of case records {} does not equal case controls: {}\n").format(len(self.casecontrol), len(self.cases)))
 		for k in self.case.keys():
 			egid = self.case[k][h["egid"]]
 			if egid not in self.casecontrol.keys() or self.casecontrol[egid] != k or k not in self.ucr.keys():
 				misses.append(self.case[k])
-				del self.case(k)
+				del self.case[k]
 		self.__writeList__(outfile, misses, self.headers["case"].values)
 
 	def __mergeCaseRecords__(self):
@@ -106,7 +106,7 @@ class DatabaseMerger():
 		self.ucr = self.__setCases__("ucr")
 		self.cases = self.__setCases__("case")
 		self.__checkCaseRecords__()
-		#self.control = self.__setCases__("control")
+		self.__mergeCaseRecords__()
 
 def main():
 	start = datetime.now()
