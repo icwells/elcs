@@ -10,6 +10,10 @@
 These scripts are meant to run on a Windows server with no internet access, and thus are completely self-contained.  
 All input files are declared within the manifest.py file, and all output will be written to the scripts' parent directory.  
 
-### Merge UCR and UPDB records
+### Merge UCR and UPDB records:  
 
-	& 'C:\Program Files (x86)\Python\Python37-32\python.exe' mergeRecords.py
+	& 'C:\Program Files (x86)\Python\Python37-32\python.exe' mergeRecords.py  
+
+### Summarize Output files:  
+
+	& 'C:\Program Files (x86)\Python\Python37-32\python.exe' summary.py \path\to\input  
