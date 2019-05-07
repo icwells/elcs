@@ -15,7 +15,6 @@ class DatabaseMerger():
 		self.case = {}
 		self.controlids = set()
 		self.caseids = set()
-		self.__checkInfiles__()
 		self.__setPath__()
 
 	def __setPath__(self):
@@ -24,11 +23,6 @@ class DatabaseMerger():
 		# Remove possible trailing slash and drop last directory
 		wd = wd[:-1]
 		self.outdir = wd[:wd.rfind(os.path.sep)+1]
-
-	def __checkInfiles__(self):
-		# Makes sure files exist
-		for i in self.infiles.keys():
-			checkFile(self.infiles[i])
 
 	def __setCases__(self, k):
 		# Reads dict of case/control records
