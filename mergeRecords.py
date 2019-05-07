@@ -5,6 +5,17 @@ from datetime import datetime
 from manifest import getInfiles
 from windowspath import *
 
+class CaseID():
+	def __init__(self, caseid):
+		self.caseid = caseid
+		self.total = 0
+		self.controlids = set()
+
+	def add(self, controlid):
+		# Adds new control id and increments total
+		self.total += 1
+		self.controlids.add(controlid)
+
 class DatabaseMerger():
 
 	def __init__(self):
@@ -13,8 +24,7 @@ class DatabaseMerger():
 		self.outdir = None
 		self.ucr = {}
 		self.case = {}
-		self.controlids = set()
-		self.caseids = set()
+		self.caseids = {}
 		self.__setPath__()
 
 	def __setPath__(self):
@@ -52,8 +62,10 @@ class DatabaseMerger():
 				line = line.strip()
 				if first == False:
 					s = line.split(d)
-					self.caseids.add(s[h["CaseID"]])
-					self.controlids.add(s[h["controlId"]])
+					cid = s[h["CaseID"]]
+					if cid not in self.caseids.keys():
+						self.caseids[cid] = CaseID(cid)
+					self.caseids[cid].add(s[h["controlId"]])
 				else:
 					d = getDelim(line)
 					h = setHeader(line.split(d))
@@ -71,19 +83,24 @@ class DatabaseMerger():
 
 	def __checkCaseRecords__(self):
 		# Compares case eg and person IDs against case/control IDs
-		misses = {}
-		outfile = self.outdir + "missingControl.csv"
+		nocontrol = {}
+		nocase = {}
 		h = self.headers["case"]
 		if len(self.caseids) != len(self.case):
 			print(("\n\t[Warning] Number of case records {:,} does not equal case controls: {:,}\n").format(len(self.case), len(self.caseids)))
 		for k in self.case.keys():
-			if k not in self.caseids or k not in self.ucr.keys():
-				misses[k] = self.case[k]
-		for k in misses.keys():
+			if k not in self.caseids.keys() or k not in self.ucr.keys():
+				nocontrol[k] = self.case[k]
+		for k in nocontrol.keys():
 			 # Delete in seperate loop
 			del self.case[k]
-		if len(misses) > 0:
-			self.__writeList__(outfile, misses.values(), self.headers["case"].keys())
+		for k in self.ucr.keys():
+			if k not in self.case.keys():
+				nocase[k] = self.ucr[k]
+		if len(nocontrol) > 0:
+			self.__writeList__(self.outdir + "missingControl.csv", nocontrol.values(), self.headers["case"].keys())
+		if len(nocase) > 0:
+			self.__writeList__(self.outdir + "missingCase.csv", nocase.values(), self.headers["ucr"].keys())
 
 	def __mergeCaseRecords__(self):
 		# Merges ucr and case records
