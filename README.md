@@ -17,3 +17,9 @@ All input files are declared within the manifest.py file, and all output will be
 ### Summarize Output files:  
 
 	& 'C:\Program Files (x86)\Python\Python37-32\python.exe' summary.py \path\to\input  
+
+### File Description  
+Amycasedat_051916.csv: UCR data  
+David_Ken_BreastCancer_CaseControl_New20171024.csv: 5 case IDs (person IDs) to 1 control  
+David_Ken_BreastCancer_Main_20160617.csv: UPDB data for entries in UCR data  
+David_Ken_BreastCancer_Main_Ctrl_20160617.csv: UPDB data for entries without UCR data  
