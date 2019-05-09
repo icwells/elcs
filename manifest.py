@@ -40,7 +40,7 @@ def getInfiles(orig = True):
 		checkFile(infiles[k])
 	return infiles
 
-def setPath(self):
+def setPath():
 	# Sets path to outdir
 	wd = os.getcwd()
 	# Remove possible trailing slash and drop last directory
