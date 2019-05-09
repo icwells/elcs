@@ -16,7 +16,7 @@ class ERupdate():
 		self.infiles = getInfiles()
 		self.header = {}
 		self.outfile = ("{}ucr.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
-		self.markers = getMarkers()
+		self.markers = __getMarkers__()
 		self.ucr = []
 		self.__setUCR__()
 

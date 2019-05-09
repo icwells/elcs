@@ -16,7 +16,6 @@ class DatabaseMerger():
 		self.control = {}
 		self.caseids = set()
 		self.controlids = set()
-		self.setPath()
 
 	def __setCases__(self, k):
 		# Reads dict of case/control records
