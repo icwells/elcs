@@ -2,37 +2,21 @@
 
 import os
 from datetime import datetime
-from manifest import getInfiles
+from manifest import *
 from windowspath import *
-
-class CaseID():
-	def __init__(self, caseid):
-		self.caseid = caseid
-		self.total = 0
-		self.controlids = set()
-
-	def add(self, controlid):
-		# Adds new control id and increments total
-		self.total += 1
-		self.controlids.add(controlid)
 
 class DatabaseMerger():
 
 	def __init__(self):
-		self.infiles = getInfiles()
+		self.infiles = getInfiles(False)
 		self.headers = {}
-		self.outdir = None
+		self.outdir = setPath()
 		self.ucr = {}
 		self.case = {}
-		self.caseids = {}
-		self.__setPath__()
-
-	def __setPath__(self):
-		# Sets path to and outdir
-		wd = os.getcwd()
-		# Remove possible trailing slash and drop last directory
-		wd = wd[:-1]
-		self.outdir = wd[:wd.rfind(os.path.sep)+1]
+		self.control = {}
+		self.caseids = set()
+		self.controlids = set()
+		self.setPath()
 
 	def __setCases__(self, k):
 		# Reads dict of case/control records
@@ -54,7 +38,7 @@ class DatabaseMerger():
 		return ret
 
 	def __setCaseControl__(self):
-		# Reads dict of case/control ids
+		# Reads sets of case/control ids
 		first = True
 		k = "casecontrol"
 		with open(self.infiles[k], "r") as f:
@@ -62,14 +46,59 @@ class DatabaseMerger():
 				line = line.strip()
 				if first == False:
 					s = line.split(d)
-					cid = s[h["CaseID"]]
-					if cid not in self.caseids.keys():
-						self.caseids[cid] = CaseID(cid)
-					self.caseids[cid].add(s[h["controlId"]])
+					self.caseids.add(s[h["CaseID"]])
+					self.controlids.add(s[h["controlId"]])
 				else:
 					d = getDelim(line)
 					h = setHeader(line.split(d))
 					first = False
+
+#-------------------------------ID Comparison---------------------------------
+
+	def __checkIDs__(self, l, s, m1, m2, shared = False):
+		# Identifies shared/exclusive ids between l and s and prints total
+		count = 0
+		for i in l:
+			if shared == True and i in s:
+				count += 1
+			elif shared == False and i not in s:
+				count += 1
+		if count > 0:
+			ins = ""
+			if "ids" not in m1:
+				ins = "records "
+			if shared == False:
+				ins += "not "
+			print(("\t{:,} {} {}found in {}.").format(count, m1, ins, m2))	
+
+	def __checkKeys__(self, header, outfile, d, s):
+		# Identifies ids in d not in s, writes records to outfile, and returns list of ids
+		misses = {}
+		for k in d.keys():
+			if k not in s:
+				misses[k] = d[k]
+		if len(misses) > 0:
+			self.__writeList__(self.outdir + outfile, misses.values(), header)
+		return misses.keys()
+
+	def __checkCaseRecords__(self):
+		# Compares case eg and person IDs against case/control IDs
+		# Compare caseids to case file and control ids to control file
+		self.__checkIDs__(self.caseids, set(self.case.keys()), "caseids", "case")
+		self.__checkIDs__(self.controlids, set(self.control.keys()), "controlids", "control")
+		# Make sure no caseids are in control file
+		self.__checkIDs__(self.case.keys(), set(self.control.keys()), "case", "control", True)
+		if len(self.caseids) != len(self.case):
+			print(("\n\t[Warning] Number of case records {:,} does not equal case controls: {:,}\n").format(len(self.case), len(self.caseids)))
+		# Compare case keys to case ids and vice versa
+		ids = self.__checkKeys__(self.headers["case"].keys(), "missingControl.csv", self.case, self.caseids)
+		for k in ids:
+			 # Delete lines with missing data
+			del self.case[k]
+		# Comapre ucr personids to case file and compare misses to control
+		ids = self.__checkKeys__(self.headers["ucr"].keys(), "missingCase.csv", self.ucr, set(self.case.keys()))
+		self.__checkIDs__(ids, set(self.control.keys()), "ucr", "control", True)
+		
 
 #-----------------------------------------------------------------------------
 
@@ -80,27 +109,6 @@ class DatabaseMerger():
 			out.write(",".join(header) + "\n")
 			for i in l:
 				out.write(",".join(i) + "\n")
-
-	def __checkCaseRecords__(self):
-		# Compares case eg and person IDs against case/control IDs
-		nocontrol = {}
-		nocase = {}
-		h = self.headers["case"]
-		if len(self.caseids) != len(self.case):
-			print(("\n\t[Warning] Number of case records {:,} does not equal case controls: {:,}\n").format(len(self.case), len(self.caseids)))
-		for k in self.case.keys():
-			if k not in self.caseids.keys() or k not in self.ucr.keys():
-				nocontrol[k] = self.case[k]
-		for k in nocontrol.keys():
-			 # Delete in seperate loop
-			del self.case[k]
-		for k in self.ucr.keys():
-			if k not in self.case.keys():
-				nocase[k] = self.ucr[k]
-		if len(nocontrol) > 0:
-			self.__writeList__(self.outdir + "missingControl.csv", nocontrol.values(), self.headers["case"].keys())
-		if len(nocase) > 0:
-			self.__writeList__(self.outdir + "missingCase.csv", nocase.values(), self.headers["ucr"].keys())
 
 	def __mergeCaseRecords__(self):
 		# Merges ucr and case records
@@ -123,6 +131,7 @@ class DatabaseMerger():
 		self.__setCaseControl__()
 		self.ucr = self.__setCases__("ucr")
 		self.case = self.__setCases__("case")
+		self.control = self.__setCases__("control")
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
 
