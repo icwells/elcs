@@ -17,7 +17,8 @@ def __getNewest__(path):
 	if len(g) == 1:
 		return g[0]
 	for f in g:
-		files[__getTime__(f)] = f
+		if "_summary" not in f:
+			files[__getTime__(f)] = f
 	# Return newest file
 	mx = max(files.keys())
 	return files[mx]

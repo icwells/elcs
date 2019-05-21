@@ -11,6 +11,7 @@ class DatabaseMerger():
 		self.infiles = getInfiles(False)
 		self.headers = {}
 		self.outdir = setPath()
+		self.outfile = self.outdir + "mergedUCRrecords.csv"
 		self.ucr = {}
 		self.case = {}
 		self.control = {}
@@ -109,21 +110,40 @@ class DatabaseMerger():
 			for i in l:
 				out.write(",".join(i) + "\n")
 
-	def __mergeCaseRecords__(self):
-		# Merges ucr and case records
-		outfile = self.outdir + "mergedUCRrecords.csv"
-		# Merge headers
+	def __getHeader__(self):
+		# Returns header for output file
 		header = list(self.headers["case"].keys())
 		h = self.headers["ucr"]
 		tail = list(h.keys())
 		del tail[h["personid"]]
 		header.extend(tail)
+		header.append("Case")
+		return header
+
+	def __mergeCaseRecords__(self):
+		# Merges ucr and case records
+		tag = "1"
 		for k in self.case.keys():
 			row = self.ucr[k]
 			# Delete redundant column
-			del row[h["personid"]]
+			del row[self.headers["ucr"]["personid"]]
 			self.case[k].extend(row)
-		self.__writeList__(outfile, self.case.values(), header)
+			self.case[k].append(tag)
+
+	def __addControls__(self):
+		# Adds control records to output list and writes to file
+		tag = "0"
+		blank = []
+		for i in range(len(self.headers["ucr"])-1):
+			blank.append("")
+		blank.append(tag)
+		res = list(self.case.values())
+		for k in self.control.keys():
+			row = self.control[k]
+			# Add empty spaces to preserve case column placement
+			row.extend(blank)
+			res.append(row)
+		self.__writeList__(self.outfile, res, self.__getHeader__())
 
 	def merge(self):
 		# Merges UCR and UPDB data
@@ -133,6 +153,7 @@ class DatabaseMerger():
 		self.control = self.__setCases__("control")
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
+		self.__addControls__()
 
 def main():
 	start = datetime.now()

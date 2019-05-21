@@ -6,8 +6,8 @@ from windowspath import *
 
 def __getMarkers__():
 	# Returns dict of diagnosis markers
-	marker = {"1": "+", "2": "-"}
-	factor = {"10": "+", "20": "-"}
+	marker = {"1": "P", "2": "N"}
+	factor = {"10": "P", "20": "N"}
 	return {"CTC_TUMOR_MARKER1": marker, "CTC_CS_SITE_SPECIFIC_FACTOR1": factor}
 
 class ERupdate():
