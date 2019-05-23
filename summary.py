@@ -54,7 +54,7 @@ class Summary():
 
 	def __countRow__(self, s):
 		# Checks each column for entry
-		if self.casecontrol == False or s[self.head["case"]] == "1":
+		if self.casecontrol == False or s[self.head["Case"]] == "1":
 			self.casetotal += 1
 			for k in self.case.keys():
 				i = s[self.head[k]].strip()
