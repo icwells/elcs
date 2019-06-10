@@ -42,28 +42,22 @@ class Ages():
 
 #-----------------------------------------------------------------------------
 
-	def __lessThanTen__(self, b, d):
-		# Returns 1 if less then 10 when parent died
-		ret = "NA"
-		if d > 0:
-			if d-b <= 10:
-				ret = "Y"
-			else:
-				ret = "N"
-		return ret
+	def __lessThanTen__(self, v):
+		# Returns Y if <= 10 when parent died
+		if int(v) <= 10:
+			return "Y"
+		else:
+			return "N"
 
 	def __setAge__(self, p, e):
 		# Returns string of p-e
-		ret = "NA"
-		if p > 0:
-			ret = str(p-e)
-		return ret
+		return str(p-e)
 
 	def __getCol__(self, k, c, line):
 		# Returns column value/-1
-		ret = 0
+		ret = -1
 		val = line[self.headers[k][c]].strip()
-		if val is not None:
+		if val is not None and len(val.strip()) == 4:
 			try:
 				ret = int(val)
 			except ValueError:
@@ -72,8 +66,8 @@ class Ages():
 
 	def __setAges__(self, l, k):
 		# Returns list with parental dates added
-		ext = ["NA", "NA", "NA", "NA", "NA", "NA"]
 		for idx, i in enumerate(l):
+			ext = ["NA", "NA", "NA", "NA", "NA", "NA"]
 			# Get self, mother's, and father's birth year
 			eb = self.__getCol__(k, "byr", i)
 			mb = self.__getCol__(k, "MaByr", i)
@@ -81,13 +75,15 @@ class Ages():
 			if eb > 0 and mb > 0 and pb > 0:
 				# Get parent death years
 				md = self.__getCol__(k, "MaDyr", i)
+				if md > 0:
+					ext[0] = self.__setAge__(md, eb)
+					ext[1] = self.__setAge__(eb, mb)
+					ext[2] = self.__lessThanTen__(ext[0])
 				pd = self.__getCol__(k, "PaDyr", i)
-				ext[0] = self.__setAge__(md, eb)
-				ext[1] = self.__setAge__(eb, mb)
-				ext[2] = self.__lessThanTen__(eb, md)
-				ext[3] = self.__setAge__(pd, eb)
-				ext[4] = self.__setAge__(eb, pb)	
-				ext[5] = self.__lessThanTen__(eb, pd)
+				if pd > 0:
+					ext[3] = self.__setAge__(pd, eb)
+					ext[4] = self.__setAge__(eb, pb)	
+					ext[5] = self.__lessThanTen__(ext[3])
 			l[idx].extend(ext)
 		return l
 
