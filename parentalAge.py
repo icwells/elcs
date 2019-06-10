@@ -46,7 +46,7 @@ class Ages():
 		# Returns 1 if less then 10 when parent died
 		ret = "NA"
 		if d > 0:
-			if d-b < 10:
+			if d-b <= 10:
 				ret = "Y"
 			else:
 				ret = "N"
