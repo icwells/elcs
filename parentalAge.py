@@ -36,11 +36,21 @@ class Ages():
 		# Writes list to csv
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
-			out.write(",".join(header) + ",AgeMaD,AgePaD,MaAgeBr,PaAgeBr\n")
+			out.write(",".join(header) + ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10\n")
 			for i in l:
 				out.write(",".join(i) + "\n")
 
 #-----------------------------------------------------------------------------
+
+	def __lessThanTen__(self, b, d):
+		# Returns 1 if less then 10 when parent died
+		ret = "NA"
+		if d > 0:
+			if d-b < 10:
+				ret = "Y"
+			else:
+				ret = "N"
+		return ret
 
 	def __setAge__(self, p, e):
 		# Returns string of p-e
@@ -62,7 +72,7 @@ class Ages():
 
 	def __setAges__(self, l, k):
 		# Returns list with parental dates added
-		ext = ["NA", "NA", "NA", "NA"]
+		ext = ["NA", "NA", "NA", "NA", "NA", "NA"]
 		for idx, i in enumerate(l):
 			# Get self, mother's, and father's birth year
 			eb = self.__getCol__(k, "byr", i)
@@ -73,9 +83,11 @@ class Ages():
 				md = self.__getCol__(k, "MaDyr", i)
 				pd = self.__getCol__(k, "PaDyr", i)
 				ext[0] = self.__setAge__(md, eb)
-				ext[1] = self.__setAge__(pd, eb)
-				ext[2] = self.__setAge__(eb, mb)
-				ext[3] = self.__setAge__(eb, pb)	
+				ext[1] = self.__setAge__(eb, mb)
+				ext[2] = self.__lessThanTen__(eb, md)
+				ext[3] = self.__setAge__(pd, eb)
+				ext[4] = self.__setAge__(eb, pb)	
+				ext[5] = self.__lessThanTen__(eb, pd)
 			l[idx].extend(ext)
 		return l
 
