@@ -1,0 +1,39 @@
+UID,Client,Account,Case,ID,Date,PT_Name,Patient,Code,Diagnosis,caseid,Sex,Age
+1,XYZ,X520,1,1,12-Dec,Coyote,11-4582,8,Biopsy: NORMAL BLOOD SMEAR,X11-1,Male,
+2,XYZ,X520,1,2,13-Jan,Coyote,11-930344,C/C,ERYTHROPHAGOCYTOSIS,X11-2,,
+3,XYZ,X520,1,1,1-Dec,Coyote,12-32,8,Lymphoma lymph nodes 2 year old male,X12-1,,
+4,XYZ,X520,1,2,1-Dec,Coyote,12-35,M/F,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,X12-2,,
+5,XYZ,X520,1,3,1-Dec,Coyote,12-54,M/F,MICRONED HEPATITIS,X12-3,,
+6,XYZ,X520,1,4,1-Dec,Coyote,99-115,14,,A99-4,,
+7,XYZ,X520,1,5,1-Dec,Coyote,99-117,M/F,ASPERGILLOSIS,A99-5,,
+8,KV Zoo,A16,1,6,1-Dec,wolf,99-118,M/F8,Ovarian adenoma,A99-6,,
+9,KV Zoo,A16,1,7,1-Dec,wolf,99-121,M/F,,A99-7,,
+10,KV Zoo,A16,1,,,wolf,,8,skin biopsy:  squamous cell carcinoma; in situ,,Female,0
+11,KV Zoo,A16,1,,,wolf,,8,Uterus:  Endometrial carcinoma with metastatis,,Female,13
+12,KV Zoo,A16,1,,,wolf,,,,,Male,5
+13,KV Zoo,A16,1,,,wolf,,,Spayed biopsy,,Female,10.5
+14,KV Zoo,A16,1,,,wolf,,,,,Female,0
+15,KV Zoo,A16,1,,,GRAY WOLF,,,16 month old,,,16
+16,KV Zoo,A16,1,,,GRAY WOLF,,8,Malignant liver adenocarcinoma,,Female,11
+17,KV Zoo,A16,1,,,GRAY WOLF,,,neutered,,Male,12
+18,KV Zoo,A16,1,,30463,GRAY WOLF,CHUCK,,,,Male; Intact,
+19,KV Zoo,A16,1,,32688,GRAY WOLF,,,,,Male; Intact,
+1,XYZ,X520,0,1,12-Dec,Coyote,11-4582,8,Biopsy: NORMAL BLOOD SMEAR,X11-1,Male,
+2,XYZ,X520,0,2,13-Jan,Coyote,11-930344,C/C,ERYTHROPHAGOCYTOSIS,X11-2,,
+3,XYZ,X520,0,1,1-Dec,Coyote,12-32,8,Lymphoma lymph nodes 2 year old male,X12-1,,
+4,XYZ,X520,0,2,1-Dec,Coyote,12-35,M/F,HIPOTOMAS TOXIC HIPOTOPATHY autopsy,X12-2,,
+5,XYZ,X520,0,3,1-Dec,Coyote,12-54,M/F,MICRONED HEPATITIS,X12-3,,
+6,XYZ,X520,0,4,1-Dec,Coyote,99-115,14,,A99-4,,
+7,XYZ,X520,0,5,1-Dec,Coyote,99-117,M/F,ASPERGILLOSIS,A99-5,,
+8,KV Zoo,A16,0,6,1-Dec,wolf,99-118,M/F8,Ovarian adenoma,A99-6,,
+9,KV Zoo,A16,0,7,1-Dec,wolf,99-121,M/F,,A99-7,,
+10,KV Zoo,A16,0,,,wolf,,8,skin biopsy:  squamous cell carcinoma; in situ,,Female,0
+11,KV Zoo,A16,0,,,wolf,,8,Uterus:  Endometrial carcinoma with metastatis,,Female,13
+12,KV Zoo,A16,0,,,wolf,,,,,Male,5
+13,KV Zoo,A16,0,,,wolf,,,Spayed biopsy,,Female,10.5
+14,KV Zoo,A16,0,,,wolf,,,,,Female,0
+15,KV Zoo,A16,0,,,GRAY WOLF,,,16 month old,,,16
+16,KV Zoo,A16,0,,,GRAY WOLF,,8,Malignant liver adenocarcinoma,,Female,11
+17,KV Zoo,A16,0,,,GRAY WOLF,,,neutered,,Male,12
+18,KV Zoo,A16,0,,30463,GRAY WOLF,CHUCK,,,,Male; Intact,
+19,KV Zoo,A16,0,,32688,GRAY WOLF,,,,,Male; Intact,
