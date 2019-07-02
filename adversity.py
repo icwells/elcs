@@ -38,7 +38,7 @@ class Adversity():
 		for k in inc.keys():
 			inc[k].sort()
 			# Get index at 25% the length of list, set value in dict
-			idx = int(len(inc[k]-1)*p)
+			idx = int((len(inc[k])-1)*p)
 			self.income[k] = inc[k][idx]
 
 	def __setCases__(self, k):
@@ -61,7 +61,7 @@ class Adversity():
 
 	def __writeList__(self, outfile, l, header):
 		# Writes list to csv
-		tail = ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10,TeenMa,SibDeath,LowMSEI,LowMNP,LowPSEI,LowPNP,>5Sibs,AdversityScore\n"
+		tail = ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10,TeenMa,SibDeath,LowMaSEI,LowMaNP,LowPaSEI,LowPaNP,>5Sibs,AdversityScore\n"
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
 			out.write(",".join(header) + tail)
@@ -84,12 +84,8 @@ class Adversity():
 	def __getCol__(self, k, c, line):
 		# Returns column value/-1
 		ret = -1
-		l = 1
-		if "yr" in c:
-			# Expect 4 digit year
-			l = 4
 		val = line[self.headers[k][c]].strip()
-		if val is not None and len(val.strip()) == l:
+		if val is not None:
 			try:
 				ret = int(val)
 			except ValueError:
@@ -99,7 +95,7 @@ class Adversity():
 	def __getComparison__(self, k, c, line, less=None, greater=None):
 		# Performs given comparison, appends to ext and returns adversity point
 		ret = self.__getCol__(k, c, line)
-		if v >= 0:
+		if ret >= 0:
 			if less is not None and ret < less:
 				ret = 1
 			elif greater is not None and ret > greater:
@@ -121,7 +117,7 @@ class Adversity():
 		if panp == 1 or pasei == 1:
 			n += 1
 		sibs = self.__getComparison__(k, "NumSibs", line, greater=5)
-		if n > 0 and sibs == 1:
+		if n > 1 and sibs == 1:
 			# Only consider large number of siblings adversity if low income
 			n += 1
 		ret = [str(manp), str(masei), str(panp), str(pasei), str(sibs)]
@@ -129,6 +125,7 @@ class Adversity():
 
 	def __getAges__(self, k, line):
 		# Returns age-based calculations
+		ret = 0
 		ext = ["NA", "NA", "NA", "NA", "NA", "NA", "0"] 
 		# Get self, mother's, and father's birth year
 		eb = self.__getCol__(k, "byr", line)
@@ -141,26 +138,32 @@ class Adversity():
 				ext[0] = self.__setAge__(md, eb)
 				ext[1] = self.__setAge__(eb, mb)
 				ext[2] = self.__lessThanTen__(ext[0])
+				if ext[2] == "1":
+					ret += 1
 			pd = self.__getCol__(k, "PaDyr", line)
 			if pd > 0:
 				ext[3] = self.__setAge__(pd, eb)
 				ext[4] = self.__setAge__(eb, pb)	
 				ext[5] = self.__lessThanTen__(ext[3])
-			if int(ext[1]) <= 18:
+				if ext[5] == "1":
+					ret += 1
+			if ext[1] != "NA" and int(ext[1]) <= 18:
 				# Add 1 for teenage mother
 				ext[6] = "1"
-		return ext
+				ret += 1
+		return ext, ret
 
 	def __setMeasures__(self, l, k):
 		# Returns list with parental dates added
 		for idx, i in enumerate(l):
-			ext = self.__getAges__(k, i)
-			total = int(ext[2]) + int(ext[5]) + int(ext[6])
-			total += self.__getComparison__(k, "NumSibsDieChildhood", i, greater=1)
+			ext, total = self.__getAges__(k, i)
+			n = self.__getComparison__(k, "NumSibsDieChildhood", i, greater=1)
 			ext.append(str(n))
-			l, n = self.__getIncomeMeasures__(k, i)
+			if n == 1:
+				total += n
+			lst, n = self.__getIncomeMeasures__(k, i)
 			total += n
-			ext.extend(l)
+			ext.extend(lst)
 			ext.append(str(total))
 			l[idx].extend(ext)
 		return l

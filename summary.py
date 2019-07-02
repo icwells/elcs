@@ -58,14 +58,16 @@ class Summary():
 			self.casetotal += 1
 			for k in self.case.keys():
 				i = s[self.head[k]].strip()
-				if i and i != "NA":
-					self.case[k] += 1
+				if i:
+					if i != "NA" and i != "-1":
+						self.case[k] += 1
 		else:
 			self.controltotal += 1
 			for k in self.control.keys():
 				i = s[self.head[k]].strip()
-				if i and i != "NA":
-					self.control[k] += 1
+				if i:
+					if i != "NA" and i != "-1":
+						self.control[k] += 1
 
 	def __setSummary__(self):
 		# Counts entires per column in input file
