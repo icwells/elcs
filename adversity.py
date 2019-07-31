@@ -32,7 +32,8 @@ class Adversity():
 	def __setScores__(self):
 		# Determines 25% mark for income status measures
 		p = 0.25
-		inc = {"MaCenNamPow": [], "MaCenSEI": [], "PaCenNamPow": [], "PaCenSEI": []}
+		inc = {"MaCenNamPow": [], "MaCenSEI": [], "PaCenNamPow": [], "PaCenSEI": [], "EgoCenIncome": [], 
+				"MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue1940_New": [], "PaHomeValue1940_New": [], "MaHomeValue1940_New": []}
 		inc = self.__getTotals__("case", self.case, inc)
 		inc = self.__getTotals__("control", self.control, inc)
 		for k in inc.keys():
@@ -61,7 +62,8 @@ class Adversity():
 
 	def __writeList__(self, outfile, l, header):
 		# Writes list to csv
-		tail = ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10,TeenMa,SibDeath,LowMaSEI,LowMaNP,LowPaSEI,LowPaNP,>5Sibs,AdversityScore\n"
+		tail = ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10,TeenMa,SibDeath,LowMaSEI,LowMaNP,LowPaSEI,LowPaNP"
+		tail += ",LowEgoInc,LowMaInc,LowPaInc,LowEgoHomeVal,LowMaHomeVal,LowPaHomeVal,>5Sibs,AdversityScore\n"
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
 			out.write(",".join(header) + tail)
@@ -106,21 +108,31 @@ class Adversity():
 
 	def __getIncomeMeasures__(self, k, line):
 		# Returns scores for mother/father income status and mumber of siblings controlling for income status
+		ret = []
 		n = 0
 		manp = self.__getComparison__(k, "MaCenNamPow", line, less=self.income["MaCenNamPow"])
 		masei = self.__getComparison__(k, "MaCenSEI", line, less=self.income["MaCenSEI"])
 		panp = self.__getComparison__(k, "PaCenNamPow", line, less=self.income["PaCenNamPow"])
 		pasei = self.__getComparison__(k, "PaCenSEI", line, less=self.income["PaCenSEI"])
-		if manp == 1 or masei == 1:
-			# Give max of one point for low income status per parent
+		eci = self.__getComparison__(k, "EgoCenIncome", line, less=self.income["EgoCenIncome"])
+		mci = self.__getComparison__(k, "MaCenIncome_New", line, less=self.income["MaCenIncome_New"])
+		pci = self.__getComparison__(k, "PaCenIncome_New", line, less=self.income["PaCenIncome_New"])
+		ehv = self.__getComparison__(k, "HomeValue1940_New", line, less=self.income["HomeValue1940_New"])
+		mhv = self.__getComparison__(k, "MaHomeValue1940_New", line, less=self.income["MaHomeValue1940_New"])
+		phv = self.__getComparison__(k, "PaHomeValue1940_New", line, less=self.income["PaHomeValue1940_New"])
+		# Give max of one point for low income status per self/parent
+		if eci == 1 or ehv == 1:
 			n += 1
-		if panp == 1 or pasei == 1:
+		if manp == 1 or masei == 1 or mci == 1 or mhv == 1:
+			n += 1
+		if panp == 1 or pasei == 1 or pci == 1 or phv == 1:
 			n += 1
 		sibs = self.__getComparison__(k, "NumSibs", line, greater=5)
 		if n > 1 and sibs == 1:
 			# Only consider large number of siblings adversity if low income
 			n += 1
-		ret = [str(manp), str(masei), str(panp), str(pasei), str(sibs)]
+		for i in [manp, masei, panp, pasei, sibs, eci, mci, pci, ehv, mhv, phv]:
+			ret.append(str(i))
 		return ret, n		
 
 	def __getAges__(self, k, line):

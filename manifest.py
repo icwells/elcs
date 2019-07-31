@@ -26,12 +26,12 @@ def __getNewest__(path):
 def getInfiles(orig = True):
 	# Returns dict of input files
 	infiles = {}
-	infiles["casecontrol"] = "Z:/u0918416/David_Ken_BreastCancer_CaseControl_New20171024.csv"
+	infiles["casecontrol"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_CaseControl_New.csv"
 	if orig == True:
 		# Read in original source data
 		infiles["ucr"] = "Z:/u0918416/Amycasedat_051916.csv"
-		infiles["case"] = "Z:/u0918416/David_Ken_BreastCancer_Main_20160617.csv"
-		infiles["control"] = "Z:/u0918416/David_Ken_BreastCancer_Main_Ctrl_20160617.csv"
+		infiles["case"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_20190730.csv"
+		infiles["control"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_Ctrl_20190730.csv"
 	else:
 		# Read updated files
 		infiles["ucr"] = __getNewest__("Z:/ELCS/ucr.*.csv")
