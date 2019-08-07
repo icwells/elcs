@@ -11,7 +11,7 @@ class DatabaseMerger():
 		self.infiles = getInfiles(False)
 		self.headers = {}
 		self.outdir = setPath()
-		self.outfile = self.outdir + "mergedUCRrecords.csv"
+		self.outfile = ("{}mergedUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.ucr = {}
 		self.case = {}
 		self.control = {}
@@ -98,7 +98,9 @@ class DatabaseMerger():
 		# Comapre ucr personids to case file and compare misses to control
 		ids = self.__checkKeys__(self.headers["ucr"].keys(), "missingCase.csv", self.ucr, set(self.case.keys()))
 		self.__checkIDs__(ids, set(self.control.keys()), "ucr", "control", True)
-		
+		for k in ids:
+			 # Delete lines with missing data
+			del self.ucr[k]		
 
 #-----------------------------------------------------------------------------
 
@@ -124,11 +126,12 @@ class DatabaseMerger():
 		# Merges ucr and case records
 		tag = "1"
 		for k in self.case.keys():
-			row = self.ucr[k]
-			# Delete redundant column
-			del row[self.headers["ucr"]["personid"]]
-			self.case[k].extend(row)
-			self.case[k].append(tag)
+			if k in self.ucr.keys():
+				row = self.ucr[k]
+				# Delete redundant column
+				del row[self.headers["ucr"]["personid"]]
+				self.case[k].extend(row)
+				self.case[k].append(tag)
 
 	def __addControls__(self):
 		# Adds control records to output list and writes to file
