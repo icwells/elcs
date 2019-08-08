@@ -23,6 +23,12 @@ def __getNewest__(path):
 	mx = max(files.keys())
 	return files[mx]
 
+def getMergedFile():
+	# Returns path to most recent merged file
+	infile = __getNewest__("Z:/ELCS/mergedUCRrecords.*.csv")
+	checkFile(infile)
+	return infile
+
 def getInfiles(orig = True):
 	# Returns dict of input files
 	infiles = {}
