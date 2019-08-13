@@ -5,9 +5,19 @@ library(ggplot2)
 library(reshape2)
 library(tidyverse)
 
+getMode <- function(v) {
+  # Returns mode of vector
+  u <- unique(v)
+  m <- u[which.max(tabulate(match(v, u)))]
+  return(m)
+}
+
 erHistogram <- function(df, col) {
 	# Returns histogram of data column by er status
-  return((ggplot(df, aes(Values, fill = Type)) + geom_bar(position = "dodge") + ggtitle(col)))
+  xmax <- max(df$Values)
+  ymax <- as.numeric(sum(df$Values == getMode(df$Values)))
+  return(ggplot(df, aes(Values, fill = Type)) + geom_bar(position = "dodge") + 
+           ggtitle(col))
 }
 
 getDataFrame <- function(data, col) {
@@ -15,13 +25,15 @@ getDataFrame <- function(data, col) {
 	pos <- subset(data, ER == "P", select = col)
 	pos <- na.omit(pos)
 	colnames(pos) <- "ER+"
+	pos$"ER+" <- as.numeric(pos$"ER+")
 	neg <- subset(data, ER == "N", select = col)
 	neg <- na.omit(neg)
 	colnames(neg) <- "ER-"
-	none <- subset(data, ER == "NA", select = col)
-	none <- na.omit(none)
-	colnames(none) <- "NA"
-	ret <- melt(c(pos, neg, none))
+	neg$"ER-" <- as.numeric(neg$"ER-")
+	#none <- subset(data, ER == "NA", select = col)
+	#none <- na.omit(none)
+	#colnames(none) <- "NA"
+	ret <- melt(c(pos, neg))
 	colnames(ret) <- c("Values", "Type")
 	return(ret)
 }
@@ -39,6 +51,7 @@ for (i in 1:length(columns)) {
 	df <- getDataFrame(data, column)
 	plots[[i]] <- erHistogram(df, column)
 }
+
 # Plot by group and save
 svg(file = "../ageHistograms.svg")
 cowplot::plot_grid(plotlist = plots[1:5], nrow = 5)
