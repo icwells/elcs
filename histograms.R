@@ -7,14 +7,14 @@ library(tidyverse)
 
 erBarPlot <- function(df, title, nas) {
 	# Returns bar plot of data column by er status
-  return(ggplot(df, aes(Values, fill = Type)) + geom_bar(position = "dodge") + 
+	return(ggplot(df, aes(Values, fill = Type)) + geom_bar(position = "dodge") + 
            ggtitle(title))
 }
 
 erHistogram <- function(df, title, nas) {
 	# Returns histogram of data column by er status
-  bw <- floor(max(df$Values) * 0.01)
-  return(ggplot(df, aes(Values, fill = Type)) + geom_histogram(binwidth = bw, position = "dodge") + 
+	bw <- floor(max(df$Values) * 0.01)
+	return(ggplot(df, aes(Values, fill = Type)) + geom_histogram(binwidth = bw, position = "dodge") + 
            ggtitle(title))
 }
 
@@ -53,15 +53,14 @@ getDataFrame <- function(data, col) {
 countNA <- function(data, col) {
 	# Returns count of NA values by ER status
 	pos <- subset(data, ER == "P", select = col)
-	colnames(pos) <- "ER+ NAs"
 	neg <- subset(data, ER == "N", select = col)
-	colnames(neg) <- "ER- NAs"
 	con <- subset(data, Case == "0", select = col)
-	colnames(con) <- "Control NAs"
-	p <- colSums(is.na(pos))
-	n <- colSums(is.na(neg))
-	co<- colSums(is.na(con))
-	return(melt(c(p, n, co)))
+	p <- as.numeric(colSums(is.na(pos)))
+	n <- as.numeric(colSums(is.na(neg)))
+	co<- as.numeric(colSums(is.na(con)))
+	ret <- data.frame(col, p, n, co)
+	colnames(ret) <- c("Field", "ER+", "ER-", "Control")
+	return(ret)
 }
 
 #-----------------------------------------------------------------------------
@@ -89,7 +88,7 @@ plotSEI <- function(data) {
 	# Saves economic index plots to file
 	sei <- list()
 	mnp <- getDataFrame(data, "MaCenNamPow")
-  sei[[1]] <- erHistogram(mnp, "Mother's Nam Powers Score")
+	sei[[1]] <- erHistogram(mnp, "Mother's Nam Powers Score")
 	msei <- getDataFrame(data, "MaCenSEI")
 	sei[[2]] <- erBarPlot(msei, "Mother's Socio-Economic Index")
 	pnp <- getDataFrame(data, "PaCenNamPow")
@@ -132,8 +131,26 @@ plotHomeVal <- function(data) {
 	dev.off()
 }
 
+plotNAs <- function(data) {
+	# Makes bar plot of number of NAs for each field
+	nas <- data.frame(matrix(ncol = 4, nrow = 0))
+	colnames(nas) <- c("Field", "ER+", "ER-", "Control")
+	columns <- c("AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaCenSEI", "PaCenNamPow", "PaCenSEI", 
+				"EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New", "HomeValue1940_New", "PaHomeValue1940_New", "MaHomeValue1940_New")
+	for (i in columns) {
+		count <- countNA(data, i)
+		nas <- rbind(nas, count)
+	}
+	n <- melt(nas)
+	svg(file = "Z:/ELCS/histograms/naBarPlot.svg")
+	ggplot(n, aes(x = Field, y = value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") +
+		ggtitle("Adversity Fields NA Counts") + xlab("NA Count") + scale_x_discrete(nas$id) +
+	  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+	dev.off()
+}
+
 # Read csv with blanks as NAs
-data <- read.csv("file:///Z:/ELCS/mergedUCRrecords.2019-08-07.csv", na.strings = c("", "NA"))
+data <- read.csv("Z:/ELCS/mergedUCRrecords.2019-08-07.csv", na.strings = c("", "NA"))
 
 plotAges(data)
 plotSEI(data)
