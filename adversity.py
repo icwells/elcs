@@ -74,14 +74,18 @@ class Adversity():
 
 	def __lessThanTen__(self, v):
 		# Returns Y if <= 10 when parent died
-		if int(v) <= 10:
+		if v != "NA" and int(v) <= 10:
 			return "1"
 		else:
 			return "0"
 
 	def __setAge__(self, p, e):
 		# Returns string of p-e
-		return str(p-e)
+		ret = p-e
+		if ret >= 0:
+			return str(ret)
+		else:
+			return "NA"
 
 	def __getCol__(self, k, c, line):
 		# Returns column value/-1
@@ -148,17 +152,17 @@ class Adversity():
 			md = self.__getCol__(k, "MaDyr", line)
 			if md > 0:
 				ext[0] = self.__setAge__(md, eb)
-				ext[1] = self.__setAge__(eb, mb)
-				ext[2] = self.__lessThanTen__(ext[0])
-				if ext[2] == "1":
-					ret += 1
+			ext[1] = self.__setAge__(eb, mb)
+			ext[2] = self.__lessThanTen__(ext[0])
+			if ext[2] == "1":
+				ret += 1
 			pd = self.__getCol__(k, "PaDyr", line)
 			if pd > 0:
 				ext[3] = self.__setAge__(pd, eb)
-				ext[4] = self.__setAge__(eb, pb)	
-				ext[5] = self.__lessThanTen__(ext[3])
-				if ext[5] == "1":
-					ret += 1
+			ext[4] = self.__setAge__(eb, pb)	
+			ext[5] = self.__lessThanTen__(ext[3])
+			if ext[5] == "1":
+				ret += 1
 			if ext[1] != "NA" and int(ext[1]) <= 18:
 				# Add 1 for teenage mother
 				ext[6] = "1"

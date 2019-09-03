@@ -54,7 +54,8 @@ class Summary():
 
 	def __countRow__(self, s):
 		# Checks each column for entry
-		if self.casecontrol == False or (len(s) > self.head["Case"] and s[self.head["Case"]] == "1"):
+		l = len(s)
+		if self.casecontrol == False or (l > self.head["Case"] and s[self.head["Case"]] == "1"):
 			self.casetotal += 1
 			for k in self.case.keys():
 				i = s[self.head[k]].strip()
@@ -64,10 +65,12 @@ class Summary():
 		else:
 			self.controltotal += 1
 			for k in self.control.keys():
-				i = s[self.head[k]].strip()
-				if i:
-					if i != "NA" and i != "-1":
-						self.control[k] += 1
+				idx = self.head[k]
+				if l > idx:
+					i = s[idx].strip()
+					if i:
+						if i != "NA" and i != "-1":
+							self.control[k] += 1
 
 	def __setSummary__(self):
 		# Counts entires per column in input file
