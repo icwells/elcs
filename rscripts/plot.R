@@ -1,16 +1,89 @@
 # Plotting functions for historgrams.R
 
-erBarPlot <- function(df, title, nas) {
+erBarPlot <- function(df, title) {
 	# Returns bar plot of data column by er status
 	return(ggplot(df, aes(Values, fill = Type)) + geom_bar(position = "dodge") + 
-           ggtitle(title))
+           ggtitle(title) + ylab(yl) + scale_y_discrete(breaks = pretty_breaks())
 }
 
-erHistogram <- function(df, title, nas) {
+erHistogram <- function(df, title) {
 	# Returns histogram of data column by er status
 	return(ggplot(df, aes(Values, fill = Type)) + geom_histogram(bins = 100, position = "dodge") + 
-           ggtitle(title))
+           ggtitle(title) + ylab(yl) + scale_y_continuous(breaks = pretty_breaks())
 }
+
+#--------------------Plot Percents--------------------------------------------
+
+percentAges <- function(data) {
+	# Saves age percent plots and tables to list
+	ret <- list()
+	amd <- getCountsTable(data, "AgeMaD")
+	ret[[1]] <- erBarPlot(getPercents(amd), "Age at Mother's Death")
+	ret[[2]] <- grid.table(amd)
+	mab <- getCountsTable(data, "MaAgeBr")
+	ret[[3]] <- erBarPlot(getPercents(mab), "Mother's Age at Birth")
+	ret[[4]] <- grid.table(mab)
+	apd <- getCountsTable(data, "AgePaD")
+	ret[[5]] <- erBarPlot(getPercents(apd), "Age at Father's Death")
+	ret[[6]] <- grid.table(apd)
+	pab <- getCountsTable(data, "PaAgeBr")
+	ret[[7]] <- erBarPlot(getPercents(pab), "Fathers's Age at Birth")
+	ret[[8]] <- grid.table(pab)
+	sibs <- getCountsTable(data, "NumSibsDieChildhood")
+	ret[[9]] <- erBarPlot(getPercents(sibs), "Number of Siblings Died During Childhood")
+	ret[[10]] <- grid.table(sibs)
+	return(ret)
+}
+
+percentSEI <- function(data) {
+	# Saves sei/nam powers percent plots and tables to list
+	ret <- list()
+	mnp <- getCountsTable(data, "MaCenNamPow")
+	ret[[1]] <- erBarPlot(getPercents(mnp), "Mother's Nam Powers Score")
+	ret[[2]] <- grid.table(mnp)
+	msei <- getCountsTable(data, "MaCenSEI")
+	ret[[3]] <- erBarPlot(getPercents(msei), "Mother's Socio-Economic Index")
+	ret[[4]] <- grid.table(msei)
+	pnp <- getCountsTable(data, "PaCenNamPow")
+	ret[[5]] <- erBarPlot(getPercents(pnp), "Father's Nam Powers Score")
+	ret[[6]] <- grid.table(pnp)
+	psei <- getCountsTable(data, "PaCenSEI")
+	ret[[7]] <- erBarPlot(getPercents(psei), "Fathers's Socio-Economic Index")
+	ret[[8]] <- grid.table(psei)
+	return(ret)
+}
+
+percentIncome <- function(data) {
+	# Saves income percent plots and tables to list
+	ret <- list()
+	ei <- getCountsTable(data, "EgoCenIncome")
+	ret[[1]] <- erBarPlot(getPercents(ei), "Ego's Income")
+	ret[[2]] <- grid.table(ei)
+	mi <- getCountsTable(data, "MaCenIncome_New")
+	ret[[3]] <- erBarPlot(getPercents(mi), "Mother's Income")
+	ret[[4]] <- grid.table(mi)
+	pi <- getCountsTable(data, "PaCenIncome_New")
+	ret[[5]] <- erBarPlot(getPercents(pi), "Father's Income")
+	ret[[6]] <- grid.table(pi)
+	return(ret)
+}
+
+percentHomeValue <- function(data) {
+	# Saves income percent plots and tables to list
+	ret <- list()
+	ehv <- getCountsTable(data, "HomeValue1940_New")
+	ret[[1]] <- erBarPlot(getPercents(ehv), "Ego's 1940 Home Value")
+	ret[[2]] <- grid.table(ehv)
+	mhv <- getCountsTable(data, "MaHomeValue1940_New")
+	ret[[3]] <- erBarPlot(getPercents(mhv), "Mother's 1940 Home Value")
+	ret[[4]] <- grid.table(mhv)
+	phv <- getCountsTable(data, "PaHomeValue1940_New")
+	ret[[5]] <- erBarPlot(getPercents(phv), "Father's 1940 Home Value")
+	ret[[6]] <- grid.table(phv)
+	return(ret)
+}
+
+#--------------------Plot Counts----------------------------------------------
 
 plotAges <- function(data, controls) {
 	# Saves age related plots to list

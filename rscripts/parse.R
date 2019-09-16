@@ -51,3 +51,33 @@ countNA <- function(data, col) {
 	colnames(ret) <- c("Field", "ER+", "ER-", "Control")
 	return(ret)
 }
+
+getCountsTable <- function(data, col) {
+	# Returns table of frequencies from column
+	pos <- getERColumns(data, col, "P", "ER+")
+	pos <- table(pos)
+	neg <- getERColumns(data, col, "N", "ER-")
+	neg <- table(neg)
+	con <- getControlColumn(data, col)
+	con <- table(con)
+	ret <- data.frame(pos, neg, con)
+	colnames(ret) <- c("Value", "ER+", "ER-", "Control")
+	return(ret)
+}
+
+colPercent <- function(tbl, col) {
+	# Converts column of frequencies to percent
+	total <- as.numeric(colSums(tbl$col, na.rm = TRUE))
+	ret <- apply(tbl$col, 1, function(x) x/total)
+	return(ret)
+}
+
+getPercents <- function(tbl) {
+	# Returns percents data frame
+	p <- colPercent(table, "ER+")
+	n <-  colPercent(table, "ER-")
+	co <-  colPercent(table, "Control")
+	ret <- melt(c(p, n, co))
+	colnames(ret) <- c("Value", "Frequency", "Type")
+	return(ret)
+}
