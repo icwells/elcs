@@ -72,14 +72,15 @@ colPercent <- function(tbl, col) {
 	vals <- na.omit(subset(tbl, select = c("Value", col)))
 	if (col == "ER+") {
 		v <- vals$"ER+"
-	else if (col == "ER-") {
+	} else if (col == "ER-") {
 		v <- vals$"ER-"
-	else {
+	} else {
 		v <- vals$Control		
 	}
-	freq <- apply(v, 1, function(x) x/sum(v))
+	freq <- apply(data.frame(v), 1, function(x) x/sum(v))
 	ret <- data.frame(vals$Value, freq)
-	return(freq)
+	colnames(ret) <- c("Value", col)
+	return(ret)
 }
 
 getPercents <- function(tbl) {
@@ -87,7 +88,11 @@ getPercents <- function(tbl) {
 	p <- colPercent(tbl, "ER+")
 	n <- colPercent(tbl, "ER-")
 	co <- colPercent(tbl, "Control")
-	ret <- melt(c(p, n, co))
-	colnames(ret) <- c("Value", "Frequency", "Type")
+	m <- merge(p, n, by = 0, all = TRUE)
+	m <- subset(m, select = c("Value.x", "ER+", "ER-"))
+	m <- merge(m, co, by = 0, all = TRUE)
+	m <- subset(m, select = c("Value.x", "ER+", "ER-", "Control"))
+	ret <- melt(m, na.rm = TRUE)
+	colnames(ret) <- c("Values", "Type", "Frequency")
 	return(ret)
 }
