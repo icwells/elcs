@@ -5,12 +5,14 @@ library(ggplot2)
 library(reshape2)
 library(tidyverse)
 library(scales)
+library(gridExtra)
+library(grid)
 
 source("parse.R")
 source("plot.R")
 
 # Read csv with blanks as NAs
-data <- read.csv("Z:/ELCS/mergedUCRrecords.2019-08-07.csv", na.strings = c("", "NA"))
+data <- read.csv("Z:/ELCS/mergedUCRrecords.2019-09-03.csv", na.strings = c("", "NA"))
 
 #--------------------Plot Percents--------------------------------------------
 

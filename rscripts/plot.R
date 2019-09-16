@@ -3,13 +3,13 @@
 erBarPlot <- function(df, title) {
 	# Returns bar plot of data column by er status
 	return(ggplot(df, aes(Values, fill = Type)) + geom_bar(position = "dodge") + 
-           ggtitle(title) + ylab(yl) + scale_y_discrete(breaks = pretty_breaks())
+           ggtitle(title))
 }
 
 erHistogram <- function(df, title) {
 	# Returns histogram of data column by er status
 	return(ggplot(df, aes(Values, fill = Type)) + geom_histogram(bins = 100, position = "dodge") + 
-           ggtitle(title) + ylab(yl) + scale_y_continuous(breaks = pretty_breaks())
+           ggtitle(title))
 }
 
 #--------------------Plot Percents--------------------------------------------
