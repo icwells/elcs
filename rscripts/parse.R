@@ -63,36 +63,16 @@ getCountsTable <- function(data, col) {
 	ret <- merge(pos, neg, by = 0, all = TRUE)
 	ret <- subset(ret, select = c(pos, Freq.x, Freq.y))
 	ret <- merge(ret, data.frame(con), by = 1, all = TRUE)
-	colnames(ret) <- c("Value", "ER+", "ER-", "Control")
+	colnames(ret) <- c("Values", "ER+", "ER-", "Control")
 	return(ret)
 }
 
-colPercent <- function(tbl, col) {
+subColumn <- function(tbl, col) {
 	# Converts column of frequencies to percent
-	vals <- na.omit(subset(tbl, select = c("Value", col)))
-	if (col == "ER+") {
-		v <- vals$"ER+"
-	} else if (col == "ER-") {
-		v <- vals$"ER-"
-	} else {
-		v <- vals$Control		
-	}
-	freq <- apply(data.frame(v), 1, function(x) x/sum(v))
-	ret <- data.frame(vals$Value, freq)
-	colnames(ret) <- c("Value", col)
-	return(ret)
-}
-
-getPercents <- function(tbl) {
-	# Returns percents data frame
-	p <- colPercent(tbl, "ER+")
-	n <- colPercent(tbl, "ER-")
-	co <- colPercent(tbl, "Control")
-	m <- merge(p, n, by = 0, all = TRUE)
-	m <- subset(m, select = c("Value.x", "ER+", "ER-"))
-	m <- merge(m, co, by = 0, all = TRUE)
-	m <- subset(m, select = c("Value.x", "ER+", "ER-", "Control"))
-	ret <- melt(m, na.rm = TRUE)
-	colnames(ret) <- c("Values", "Type", "Frequency")
+	ret <- subset(tbl, select = c("Values", col))
+	ret <- na.omit(ret)
+	colnames(ret) <- c("Values", "Count")
+	ret$Values <- sapply(ret$Values, as.character)
+	ret$Values <- sapply(ret$Values, as.numeric)
 	return(ret)
 }
