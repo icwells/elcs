@@ -67,9 +67,24 @@ percentAges <- function(data, totals="") {
 
 percentSEI <- function(data, totals="") {
 	# Saves sei/nam powers percent plots and tables to list
+  idx <- 1
 	names <- c("MaCenNamPow", "MaCenSEI", "PaCenNamPow", "PaCenSEI")
 	titles <- c("Mother's Nam Powers", "Mother's SEI", "Father's Nam Powers", "Fathers's SEI")
 	labels <- c("Nam Powers", "Socio-Economic Index", "Nam Powers", "Socio-Economic Index")
+	ret <- list()
+	types <- c("ER+", "ER-", "Control")
+	colors <- c("firebrick", "gold3", "navy")
+	for (i in 1:length(names)){
+	  df <- getDataFrame(data, names[i], TRUE)
+	  for (x in 1:length(types)) {
+	    if (i%%2 != 0) {
+	      ret[[idx]] <- percentHistorgram(df, titles[i], labels[i], types[x], colors[x])
+	    } else {
+	      ret[[idx]] <- percentBarPlot(df, titles[i], labels[i], types[x], colors[x])
+	    }
+	    idx = idx + 1
+	  }
+	}
 	return(plotPercents(data, names, titles, labels, totals, TRUE))
 }
 
