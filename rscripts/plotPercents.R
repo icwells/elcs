@@ -39,6 +39,8 @@ plotPercents <- function(data, names, titles, labels, totals, append) {
 	return(ret)
 }
 
+#-----------------------------------------------------------------------------
+
 percentAges <- function(data, totals="") {
 	# Saves age percent plots and tables to list
 	names <- c("AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood")
