@@ -68,11 +68,19 @@ class Total():
 	def writeCSV(self):
 		# Writes data to csv
 		keys = self.__setKeys__()
+		print(("\tWriting output to {}...").format(self.outfile))
 		with open(self.outfile, "w") as out:
-			out.write("Value,ER+,ER-,Conttol\n")
-			out.write(("Totals,{},{},{}\n").format(self.poscount, self.negcount, self.concount))
+			out.write("Value,ER+,ER-,Control\n")
+			out.write(("Total,{},{},{}\n").format(self.poscount, self.negcount, self.concount))
 			for k in keys:
-				out.write(("{},{},{},{}\n").format(k, self.pos[k], self.neg[k], self.control[k]))
+				n, p, c = "NA", "NA", "NA"
+				if k in self.pos.keys():
+					p = self.pos[k]
+				if k in self.neg.keys():
+					n = self.neg[k]
+				if k in self.control.keys():
+					c = self.control[k]
+				out.write(("{},{},{},{}\n").format(k, p, n, c))
 
 class Counter():
 
@@ -81,6 +89,7 @@ class Counter():
 		self.header = {}
 		self.totals = {}
 		self.outdir = checkDir(os.path.join(setPath(), "totals"), True)
+		self.__setFields__()
 		self.__getTotals__()
 
 	def __setFields__(self):
@@ -92,7 +101,7 @@ class Counter():
 
 	def __parseRow__(self, status, row):
 		# Extracts relevant data from row
-		for k in self.totals.keys:
+		for k in self.totals.keys():
 			try:
 				val = int(row[self.header[k]])
 				self.totals[k].add(status, val)
@@ -103,8 +112,8 @@ class Counter():
 		# Returns ER status from line
 		ret = None
 		if len(row) > self.header["Case"]:
-			if row[self.header["Case"]] == "1":
-				ret = row[self.header["ER"]] == "P"
+			if row[self.header["Case"]].strip() == "1":
+				ret = row[self.header["ER"]].strip()
 			else:
 				ret = "C"
 		return ret
