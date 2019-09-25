@@ -79,10 +79,12 @@ class Adversity():
 		else:
 			return "0"
 
-	def __setAge__(self, p, e):
+	def __setAge__(self, p, e, filt = False):
 		# Returns string of p-e
 		ret = p-e
-		if ret >= 0:
+		if filt and 13 <= ret <= 55:
+			return str(ret)
+		elif ret >= 0:
 			return str(ret)
 		else:
 			return "NA"
@@ -152,14 +154,14 @@ class Adversity():
 			md = self.__getCol__(k, "MaDyr", line)
 			if md > 0:
 				ext[0] = self.__setAge__(md, eb)
-			ext[1] = self.__setAge__(eb, mb)
+			ext[1] = self.__setAge__(eb, mb, True)
 			ext[2] = self.__lessThanTen__(ext[0])
 			if ext[2] == "1":
 				ret += 1
 			pd = self.__getCol__(k, "PaDyr", line)
 			if pd > 0:
 				ext[3] = self.__setAge__(pd, eb)
-			ext[4] = self.__setAge__(eb, pb)	
+			ext[4] = self.__setAge__(eb, pb, True)	
 			ext[5] = self.__lessThanTen__(ext[3])
 			if ext[5] == "1":
 				ret += 1
