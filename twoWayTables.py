@@ -24,8 +24,8 @@ class Tables():
 		# Writes or appends table to file
 		print("\tWriting table to file...")
 		m = "w"
-		if os.path.isfile(self.outfile):
-			m = "a"
+		#if os.path.isfile(self.outfile):
+		#	m = "a"
 		with ExcelWriter(self.outfile, mode = m) as writer:
 			self.df.to_excel(writer, sheet_name = self.x)
 
@@ -40,10 +40,10 @@ class Tables():
 					s = line.split(self.d)
 					if len(s) >= self.head["Case"]:
 						try:
-							x = str(int(s[self.head[self.x]]))
-							y = str(int(s[self.head[self.y]]))
-							self.df[x, y] += 1
-						except TypeError:
+							x = int(s[self.head[self.x]])
+							y = int(s[self.head[self.y]])
+							self.df.loc[x, y] += 1
+						except (ValueError, KeyError):
 							pass
 				else:
 					first = False
@@ -60,14 +60,12 @@ class Tables():
 					s = line.split(self.d)
 					if len(s) >= self.head["Case"]:
 						try:
-							x = int(s[self.head[self.x]])
-							ind.add(str(x))
-						except TypeError:
+							ind.add(int(s[self.head[self.x]]))
+						except ValueError:
 							pass
 						try:
-							y = int(s[self.head[self.y]])
-							col.add(str(y))
-						except TypeError:
+							col.add(int(s[self.head[self.y]]))
+						except ValueError:
 							pass
 				else:
 					self.d = getDelim(line)
@@ -78,7 +76,7 @@ class Tables():
 		ind = list(ind)
 		ind.sort()
 		# Initialize empty data frame
-		self.df = pandas.DataFrame(zeros((len(col), len(ind)), dtype = int), columns = col, rows = ind)
+		self.df = DataFrame(zeros((len(ind), len(col)), dtype = int), columns = col, index = ind)
 
 def main():
 	start = datetime.now()
