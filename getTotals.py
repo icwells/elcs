@@ -135,6 +135,14 @@ class Counter():
 					self.header = setHeader(line.split(d))
 					first = False
 
+	def getPercents(self):
+		# Returns dict of percents
+		ret = {}
+		# column: {value:[p,n,c]}
+		for k in self.totals.keys():
+			ret[k] = self.totals.setPercents()
+		return ret
+
 	def writeCSVs(self):
 		# Writes each dict to csv
 		for k in self.totals.keys():
