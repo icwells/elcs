@@ -21,7 +21,9 @@ class Adversity():
 		for i in l:
 			for k in inc.keys():
 				# Isolate each target value
-				val = i[self.headers[key][k]].strip()
+				idx = self.headers[key][k]
+				if idx < len(i):
+					val = i[idx].strip()
 				try:
 					v = float(val)
 					inc[k].append(v)
@@ -32,7 +34,7 @@ class Adversity():
 	def __setScores__(self):
 		# Determines 25% mark for income status measures
 		p = 0.25
-		inc = {"MaCenNamPow": [], "MaCenSEI": [], "PaCenNamPow": [], "PaCenSEI": [], "EgoCenIncome": [], 
+		inc = {"MaCenNamPow": [], "MaSEI1940": [], "PaCenNamPow": [], "PaSEI1940": [], "EgoCenIncome": [], 
 				"MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue1940_New": [], "PaHomeValue1940_New": [], "MaHomeValue1940_New": []}
 		inc = self.__getTotals__("case", self.case, inc)
 		inc = self.__getTotals__("control", self.control, inc)
@@ -49,7 +51,7 @@ class Adversity():
 		print(("\tReading {} file...").format(k))
 		with open(self.infiles[k], "r") as f:
 			for line in f:
-				line = line.strip()
+				line = line.lstrip().replace("\n", "")
 				if first == False:
 					ret.append(line.split(d))
 				else:
@@ -64,10 +66,15 @@ class Adversity():
 		# Writes list to csv
 		tail = ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10,TeenMa,SibDeath,LowMaSEI,LowMaNP,LowPaSEI,LowPaNP"
 		tail += ",LowEgoInc,LowMaInc,LowPaInc,LowEgoHomeVal,LowMaHomeVal,LowPaHomeVal,>5Sibs,AdversityScore\n"
+		length = len(header) + len(tail.split(","))
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
 			out.write(",".join(header) + tail)
 			for i in l:
+				if len(i) < length:
+					# Ensure empty cells are still present
+					for idx in range(length-len(i)-1):
+						i.append("")
 				out.write(",".join(i) + "\n")
 
 #-----------------------------------------------------------------------------
@@ -92,12 +99,14 @@ class Adversity():
 	def __getCol__(self, k, c, line):
 		# Returns column value/-1
 		ret = -1
-		val = line[self.headers[k][c]].strip()
-		if val is not None:
-			try:
-				ret = int(val)
-			except ValueError:
-				pass
+		idx = self.headers[k][c]
+		if idx < len(line):
+			val = line[idx].strip()
+			if val is not None:
+				try:
+					ret = int(val)
+				except ValueError:
+					pass
 		return ret
 
 	def __getComparison__(self, k, c, line, less=None, greater=None):
@@ -117,9 +126,9 @@ class Adversity():
 		ret = []
 		n = 0
 		manp = self.__getComparison__(k, "MaCenNamPow", line, less=self.income["MaCenNamPow"])
-		masei = self.__getComparison__(k, "MaCenSEI", line, less=self.income["MaCenSEI"])
+		masei = self.__getComparison__(k, "MaSEI1940", line, less=self.income["MaSEI1940"])
 		panp = self.__getComparison__(k, "PaCenNamPow", line, less=self.income["PaCenNamPow"])
-		pasei = self.__getComparison__(k, "PaCenSEI", line, less=self.income["PaCenSEI"])
+		pasei = self.__getComparison__(k, "PaSEI1940", line, less=self.income["PaSEI1940"])
 		eci = self.__getComparison__(k, "EgoCenIncome", line, less=self.income["EgoCenIncome"])
 		mci = self.__getComparison__(k, "MaCenIncome_New", line, less=self.income["MaCenIncome_New"])
 		pci = self.__getComparison__(k, "PaCenIncome_New", line, less=self.income["PaCenIncome_New"])
