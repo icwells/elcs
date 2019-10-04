@@ -26,45 +26,26 @@ class Total():
 
 	def setKeys(self):
 		# Get sorted list of all keys
-		l = ["Totals"].extend(self.pos)
+		l = []
+		l.extend(self.pos)
 		l.extend(self.neg)
-		keys = set(l.extend(self.control))
+		l.extend(self.control)
+		keys = set(l)
 		keys = list(keys)	
 		keys.sort()
 		return keys
-
-	'''def __calculatePercent__(self, n, d):
-		# Calculates percentage
-		ret = 0
-		if d > 0 and n > 0:
-			ret = n/d
-		return ret
-
-	def setPercents(self):
-		# Returns dict of percents
-		ret = OrderedDict()
-		keys = self.__setKeys__()
-		for k in keys:
-			ret[k] = [0, 0, 0]
-			if k in self.pos.keys():
-				ret[k][0] = self.__calculatePercent__(self.pos[k], self.poscount)
-			if k in self.neg.keys():
-				ret[k][1] = self.__calculatePercent__(self.neg[k], self.negcount)
-			if k in self.control.keys():
-				ret[k][2] = self.__calculatePercent__(self.control[k], self.concount)'''
 
 	def getDF(self):
 		# Converts to data frame
 		col = ["ER+", "ER-", "Control"]
 		keys = self.setKeys()
+		keys.insert(0, "Total")
 		ret = DataFrame(zeros((len(keys), len(col)), dtype = int), columns = col, index = keys)
-		ret.loc["Totals", "ER+"] = len(self.pos)
-		ret.loc["Totals", "ER-"] = len(self.neg)
-		ret.loc["Totals", "Control"] = len(self.control)
 		for k in keys:
 			ret.loc[k, "ER+"] = self.pos.count(k)
 			ret.loc[k, "ER-"] = self.neg.count(k)
-			ret.loc[k, "Control"] = (self.control.count(k)
+			ret.loc[k, "Control"] = self.control.count(k)
+		ret.loc["Total"] = ret.sum()
 		return ret
 
 class Counter():
@@ -82,7 +63,7 @@ class Counter():
 	def __setFields__(self):
 		# Sets new dict for each field in self.totals
 		for i in self.columns:
-			self.totals[i] = Total(self.outdir, i)
+			self.totals[i] = Total()
 
 	def __parseRow__(self, status, row):
 		# Extracts relevant data from row
@@ -120,17 +101,9 @@ class Counter():
 					self.header = setHeader(line.split(d))
 					first = False
 
-	'''def getPercents(self):
-		# Returns dict of percents
-		ret = {}
-		# column: {value:[p,n,c]}
-		for k in self.totals.keys():
-			ret[k] = self.totals.setPercents()
-		return ret'''
-
 	def writeXLSX(self):
 		# Writes each dict to csv
-		print("\tWriting table to file...")
+		print("\tWriting tables to file...")
 		with ExcelWriter(self.outfile) as writer:
 			for k in self.totals.keys():
 				df = self.totals[k].getDF()

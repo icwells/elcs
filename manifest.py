@@ -36,8 +36,8 @@ def getInfiles(orig = True):
 	if orig == True:
 		# Read in original source data
 		infiles["ucr"] = "Z:/u0918416/Amycasedat_051916.csv"
-		infiles["case"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_20190730.csv"
-		infiles["control"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_Ctrl_20190730.csv"
+		infiles["case"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_20190924.txt"
+		infiles["control"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_Ctrl_20190924.txt"
 	else:
 		# Read updated files
 		infiles["ucr"] = __getNewest__("Z:/ELCS/ucr.*.csv")
