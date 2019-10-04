@@ -4,48 +4,36 @@ import os
 from collections import OrderedDict
 from datetime import datetime
 from manifest import *
+from numpy import zeros
+from pandas import DataFrame, ExcelWriter
 from windowspath import *
 
 class Total():
 
-	def __init__(self, outdir, name):
-		self.outfile = os.path.join(outdir, ("{}.csv").format(name))
-		self.pos = {}
-		self.neg = {}
-		self.control = {}
-		self.poscount = 0
-		self.negcount = 0
-		self.concount = 0
+	def __init__(self):
+		self.pos = []
+		self.neg = []
+		self.control = []
 
 	def add(self, status, val):
 		# Adds value to appropriate dict
 		if status == "P":
-			if val not in self.pos.keys():
-				self.pos[val] = 0
-			self.pos[val] += 1
-			self.poscount += 1
+			self.pos.append(val)
 		elif status == "N":
-			if val not in self.neg.keys():
-				self.neg[val] = 0
-			self.neg[val] += 1
-			self.negcount += 1
+			self.neg.append(val)
 		else:
-			if val not in self.control.keys():
-				self.control[val] = 0
-			self.control[val] += 1
-			self.concount += 1
+			self.control.append(val)
 
-	def __setKeys__(self):
+	def setKeys(self):
 		# Get sorted list of all keys
-		keys = set()
-		for d in [self.pos, self.neg, self.control]:
-			for k in d.keys():
-				keys.add(k)
+		l = ["Totals"].extend(self.pos)
+		l.extend(self.neg)
+		keys = set(l.extend(self.control))
 		keys = list(keys)	
 		keys.sort()
 		return keys
 
-	def __calculatePercent__(self, n, d):
+	'''def __calculatePercent__(self, n, d):
 		# Calculates percentage
 		ret = 0
 		if d > 0 and n > 0:
@@ -63,40 +51,37 @@ class Total():
 			if k in self.neg.keys():
 				ret[k][1] = self.__calculatePercent__(self.neg[k], self.negcount)
 			if k in self.control.keys():
-				ret[k][2] = self.__calculatePercent__(self.control[k], self.concount)
+				ret[k][2] = self.__calculatePercent__(self.control[k], self.concount)'''
 
-	def writeCSV(self):
-		# Writes data to csv
-		keys = self.__setKeys__()
-		print(("\tWriting output to {}...").format(self.outfile))
-		with open(self.outfile, "w") as out:
-			out.write("Value,ER+,ER-,Control\n")
-			out.write(("Total,{},{},{}\n").format(self.poscount, self.negcount, self.concount))
-			for k in keys:
-				n, p, c = "NA", "NA", "NA"
-				if k in self.pos.keys():
-					p = self.pos[k]
-				if k in self.neg.keys():
-					n = self.neg[k]
-				if k in self.control.keys():
-					c = self.control[k]
-				out.write(("{},{},{},{}\n").format(k, p, n, c))
+	def getDF(self):
+		# Converts to data frame
+		col = ["ER+", "ER-", "Control"]
+		keys = self.setKeys()
+		ret = DataFrame(zeros((len(keys), len(col)), dtype = int), columns = col, index = keys)
+		ret.loc["Totals", "ER+"] = len(self.pos)
+		ret.loc["Totals", "ER-"] = len(self.neg)
+		ret.loc["Totals", "Control"] = len(self.control)
+		for k in keys:
+			ret.loc[k, "ER+"] = self.pos.count(k)
+			ret.loc[k, "ER-"] = self.neg.count(k)
+			ret.loc[k, "Control"] = (self.control.count(k)
+		return ret
 
 class Counter():
 
 	def __init__(self):
 		self.infile = getMergedFile()
+		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
 		self.totals = {}
-		self.outdir = checkDir(os.path.join(setPath(), "totals"), True)
+		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaCenSEI", "PaCenNamPow", "PaCenSEI", "EgoCenIncome", 
+	             "MaCenIncome_New", "PaCenIncome_New", "HomeValue1940_New", "PaHomeValue1940_New", "MaHomeValue1940_New"]
 		self.__setFields__()
 		self.__getTotals__()
 
 	def __setFields__(self):
 		# Sets new dict for each field in self.totals
-		columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaCenSEI", "PaCenNamPow", "PaCenSEI", "EgoCenIncome", 
-	             "MaCenIncome_New", "PaCenIncome_New", "HomeValue1940_New", "PaHomeValue1940_New", "MaHomeValue1940_New"]
-		for i in columns:
+		for i in self.columns:
 			self.totals[i] = Total(self.outdir, i)
 
 	def __parseRow__(self, status, row):
@@ -135,23 +120,26 @@ class Counter():
 					self.header = setHeader(line.split(d))
 					first = False
 
-	def getPercents(self):
+	'''def getPercents(self):
 		# Returns dict of percents
 		ret = {}
 		# column: {value:[p,n,c]}
 		for k in self.totals.keys():
 			ret[k] = self.totals.setPercents()
-		return ret
+		return ret'''
 
-	def writeCSVs(self):
+	def writeXLSX(self):
 		# Writes each dict to csv
-		for k in self.totals.keys():
-			self.totals[k].writeCSV()
+		print("\tWriting table to file...")
+		with ExcelWriter(self.outfile) as writer:
+			for k in self.totals.keys():
+				df = self.totals[k].getDF()
+				df.to_excel(writer, sheet_name = k)
 
 def main():
 	start = datetime.now()
 	c = Counter()
-	c.writeCSVs()
+	c.writeXLSX()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":

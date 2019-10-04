@@ -24,8 +24,6 @@ class Tables():
 		# Writes or appends table to file
 		print("\tWriting table to file...")
 		m = "w"
-		#if os.path.isfile(self.outfile):
-		#	m = "a"
 		with ExcelWriter(self.outfile, mode = m) as writer:
 			self.df.to_excel(writer, sheet_name = self.x)
 

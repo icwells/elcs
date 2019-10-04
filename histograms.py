@@ -5,75 +5,53 @@ from datetime import datetime
 from getTotals import Counter
 from manifest import *
 from matplotlib import pyplot
+from math import ceil
 import os
 from windowspath import *
-
-class Field():
-
-	def __init__(self, name):
-		# Stores data for single histogram
-		self.name = name
-		self.pos = []
-		self.neg = []
-		self.none = []
-		self.bins = -1
-		self.set = set()
-
-	def add(self, er, val):
-		# Adds value to approriate list
-		if er == "P":
-			self.pos.append(val)
-		elif er == "N":
-			self.neg.append(val)
-		else:
-			self.none.append(val)
-		self.set.add(val)
-
-	def setBins(self):
-		# Sets number of bins for plot and returns
-		self.bins = len(self.set)
-		self.set = None
-
-
-
-
-#-----------------------------------------------------------------------------
 
 class Histograms():
 
 	def __init__(self):
 		self.label = ["ER+", "ER-", "None"]
 		self.style = "seaborn-deep"
-		self.outdir = setPath + os.path.sep + "histograms"
-		self.data = {}
-		self.__setData__()
+		self.legend = "upper right"
+		self.outdir = checkDir(setPath + "histograms", True)
+		self.data = Counter()
 		self.__plotHistograms__()
 
-	def __plot__(self, ax, name, d):
-		# Adds histogram to figure pane
-		ax.set_title(name)
-		ax.bar([self.pos, self.neg, self.none], self.bins, label = self.label)
-		ax.legend(loc='upper right')
+	def __setBins__(self, t):
+		# Returns number of bins for hist
+		keys = t.setKeys()
+		return(min(100, len(keys)))
 
-	def __plotHistograms__(self):
-		# Plots histograms and saves to svg
+	def __plot__(self, ax, name, t):
+		# Adds histogram to figure pane
+		bins = self.__setBins__(t)
+		ax.set_title(name)
+		ax.bar([t.pos, t.neg, t.control], bins, label = self.label)
+		ax.legend(loc=self.legend)
+
+	def __plotFile__(self, filename, keys, columns=1):
+		# Plots related fields to single svg
 		row = 0
 		col = 0
 		pyplot.style.use(self.style)
-		fig, axes = pyplot.subplots(nrows = 5, ncol = 3, sharex=True, sharey=True)
-		for k in self.data.keys():
-			self.data[k].plot(axes[row, col], count)
+		fig, axes = pyplot.subplots(nrows = ceil(len(keys)/columns), ncol = columns, sharex=True, sharey=True)
+		for k in keys:
+			self.__plot__(axes[row, col], k, self.data[k])
 			col += 1
-			if col == 3:
+			if col == columns:
 				# Move to new row
 				row += 1
 				col = 0
-		fig.savefig(self.outfile)
+		fig.savefig(("{}{}.{}.svg").format(self.outdir, filename, datetime.now().strftime("%Y-%m-%d")))			
 
-	def __setData__(self):
-		# Gets data from Counter class
-		c = Counter()
-		self.data = c.getPercents()		
+	def __plotHistograms__(self):
+		# Plots histograms by related fields
+		self.__plotFile__("ages", self.data.columns[:5])
+		'''self.__plotFile__("sei", self.data.columns[5:9], 2)
+		self.__plotFile__("income", self.data.columns[9:11])
+		self.__plotFile__("homeValues", self.data.columns[11:])'''
 
 def main():
 	# Read csv with blanks as NAs
