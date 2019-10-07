@@ -55,6 +55,7 @@ class Counter():
 		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
 		self.totals = {}
+		self.complete = {"P":0, "N":0, "C":0}
 		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaCenSEI", "PaCenNamPow", "PaCenSEI", "EgoCenIncome", 
 	             "MaCenIncome_New", "PaCenIncome_New", "HomeValue1940_New", "PaHomeValue1940_New", "MaHomeValue1940_New"]
 		self.__setFields__()
@@ -67,19 +68,27 @@ class Counter():
 
 	def __parseRow__(self, status, row):
 		# Extracts relevant data from row
-		for k in self.totals.keys():
+		complete = True
+		for idx, k in enumerate(self.columns):
 			try:
 				val = int(row[self.header[k]])
 				self.totals[k].add(status, val)
+				if idx < 9 and val < 0:
+					complete = False
 			except:
-				pass
+				if idx < 9:
+					complete = False
+		if complete == True:
+			self.complete[status] += 1
 
 	def __getStatus__(self, row):
 		# Returns ER status from line
 		ret = None
 		if len(row) > self.header["Case"]:
 			if row[self.header["Case"]].strip() == "1":
-				ret = row[self.header["ER"]].strip()
+				s = row[self.header["ER"]].strip()
+				if s == "P" or s == "N":
+					ret = s
 			else:
 				ret = "C"
 		return ret
@@ -109,10 +118,18 @@ class Counter():
 				df = self.totals[k].getDF()
 				df.to_excel(writer, sheet_name = k)
 
+	def printComplete(self):
+		# Prints number of complete records to the screen
+		print("\n\tNumber of complete records:")
+		print(("\t\tER+\t{}").format(self.complete["P"]))
+		print(("\t\tER-\t{}").format(self.complete["N"]))
+		print(("\t\tControl\t{}\n").format(self.complete["C"]))
+
 def main():
 	start = datetime.now()
 	c = Counter()
 	c.writeXLSX()
+	c.printComplete()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
