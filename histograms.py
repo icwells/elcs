@@ -44,11 +44,6 @@ class Histograms():
 		self.axes["PaHomeValue1940_New"] = [v, None]
 		self.axes["MaHomeValue1940_New"] = [v, None]
 
-	def __setBins__(self, k):
-		# Returns number of bins and xlim for hist
-		keys = self.data.totals[k].setKeys()
-		return min(100, len(keys)), max(keys)
-
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent
 		t =  self.data.totals[k]
@@ -57,11 +52,29 @@ class Histograms():
 		c = 100 * ones_like(t.control)/len(t.control)
 		return [p, n, c]
 
+	def __trimLists__(self, k):
+		# Removes values greater than xlim from control list
+		idx = -1
+		self.data.totals[k].control.sort()
+		for i in range(len(self.data.totals[k].control)-1, 0, -1):
+			if self.data.totals[k].control[i] <= self.axes[k][1]:
+				break
+			idx = i
+		if idx > 0:
+			self.data.totals[k].control = self.data.totals[k].control[:idx]
+
+	def __setBins__(self, k):
+		# Returns number of bins and xlim for hist
+		keys = self.data.totals[k].setKeys()
+		return min(100, len(keys)), max(keys)
+
 	def __plot__(self, k):
 		# Adds histogram to figure pane
 		print(("\tPlotting {}...").format(k))
 		bins, xl = self.__setBins__(k)
 		if self.axes[k][1] is not None:
+			if xl > self.axes[k][1]:
+				self.__trimLists__(k)
 			xl = self.axes[k][1]
 		w = self.__setWeights__(k)
 		fig, ax = pyplot.subplots(nrows = 1, ncols = 1)
