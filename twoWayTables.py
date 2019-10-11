@@ -27,6 +27,17 @@ class Tables():
 		with ExcelWriter(self.outfile, mode = m) as writer:
 			self.df.to_excel(writer, sheet_name = self.x)
 
+	def __getValue__(self, v):
+		# Returns integer value
+		if v.strip() == "":
+			ret = 0
+		else:
+			try:
+				ret = int(v)
+			except ValueError:
+				ret = -1
+		return ret
+
 	def __getTable__(self):
 		# Calculates table values
 		first = True
@@ -37,12 +48,10 @@ class Tables():
 				if first == False:
 					s = line.split(self.d)
 					if len(s) >= self.head["Case"]:
-						try:
-							x = int(s[self.head[self.x]])
-							y = int(s[self.head[self.y]])
+						x = self.__getValue__(s[self.head[self.x]])
+						y = self.__getValue__(s[self.head[self.y]])
+						if x >= 0 and y >= 0 and x <= y:
 							self.df.loc[x, y] += 1
-						except (ValueError, KeyError):
-							pass
 				else:
 					first = False
 
@@ -50,6 +59,8 @@ class Tables():
 		# Stores columns and indeces for table
 		first = True
 		col, ind = set(), set()
+		col.add(0)
+		ind.add(0)
 		print("\tGetting table column and row names...")
 		with open(self.infile, "r") as f:
 			for line in f:

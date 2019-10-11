@@ -28,9 +28,9 @@ class Histograms():
 		sei = "Socio-Economic Index"
 		i = "Income (US dollars)"
 		v = "1940 Home Value (US dollars)"
-		self.axes["AgeMaD"] = [a, None]
+		self.axes["AgeMaD"] = [a, 85]
 		self.axes["MaAgeBr"] = [a, 55]
-		self.axes["AgePaD"] = [a, None]
+		self.axes["AgePaD"] = [a, 85]
 		self.axes["PaAgeBr"] = [a, 55]
 		self.axes["NumSibsDieChildhood"] = ["Number of Siblings", 13]
 		self.axes["MaCenNamPow"] = [np, 1000]
