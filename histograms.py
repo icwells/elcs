@@ -52,16 +52,23 @@ class Histograms():
 		c = 100 * ones_like(t.control)/len(t.control)
 		return [p, n, c]
 
-	def __trimLists__(self, k):
-		# Removes values greater than xlim from control list
+	def __trimList__(self, k, l):
+		# Trims given list an returns
 		idx = -1
-		self.data.totals[k].control.sort()
-		for i in range(len(self.data.totals[k].control)-1, 0, -1):
-			if self.data.totals[k].control[i] <= self.axes[k][1]:
+		l.sort()
+		for i in range(len(l)-1, 0, -1):
+			if l[i] <= self.axes[k][1]:
 				break
 			idx = i
 		if idx > 0:
-			self.data.totals[k].control = self.data.totals[k].control[:idx]
+			l = l[:idx]
+		return l
+
+	def __trimLists__(self, k):
+		# Removes values greater than xlim from control list
+		self.data.totals[k].control = self.__trimList__(k, self.data.totals[k].control)
+		self.data.totals[k].pos = self.__trimList__(k, self.data.totals[k].pos)
+		self.data.totals[k].neg = self.__trimList__(k, self.data.totals[k].neg)
 
 	def __setBins__(self, k):
 		# Returns number of bins and xlim for hist

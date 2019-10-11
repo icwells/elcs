@@ -204,7 +204,7 @@ class Adversity():
 
 def main():
 	start = datetime.now()
-	print("\n\tCalculating parental age in UPDB records...")
+	print("\n\tCalculating adversity scores in UPDB records...")
 	a = Adversity()
 	a.getAdversityScores()
 	print(("\tFinished. Run time: {}\n").format(datetime.now() - start))
