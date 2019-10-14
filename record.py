@@ -29,7 +29,7 @@ class UPDBRecord():
 	def toList(self):
 		# Returns stored values as list of strings
 		ret = []
-		for k in self.d:
+		for k in self.d.keys():
 			ret.append(str(self.d[k]))
 		ret.append(str(self.score))
 		return ret
@@ -89,9 +89,9 @@ class UPDBRecord():
 		elif eci == 0 or mci == 0 or pci == 0: 
 			self.d["LowIncome"] = 0
 
-	def __setHomeVal__(h, income, line):
+	def __setHomeVal__(self, h, income, line):
 		# Sets vlaues for low rent/home value
-		own = self.__getCol(h["OWNERSHP_ToHEAD"], line)
+		own = self.__getCol__(h["OWNERSHP_ToHEAD"], line)
 		if own == 1:
 			self.d["LowHomeVal"] = self.__getComparison__(h["HomeValue_Head1940"], line, less=income["HomeValue_Head1940"])
 		elif own == 2:
@@ -118,7 +118,7 @@ class UPDBRecord():
 		if self.d["LowPaSEI"] == 1 or self.d["LowPaNP"] == 1:
 			self.score += 1
 			low = True
-		self.d[">5Sibs"] = self.__getComparison__(k, "NumSibs", line, greater=5)
+		self.d[">5Sibs"] = self.__getComparison__(h["NumSibs"], line, greater=5)
 		if self.d[">5Sibs"]:
 			if low or self.d["LowIncome"] == 1 or self.d["LowHomeVal"] == 1:
 				# Only consider large number of siblings adversity if low income
@@ -139,7 +139,7 @@ class UPDBRecord():
 			self.score += 1'''
 		if 0 <= self.d["MaAgeBr"] <= 18:
 			# Set 1 for teenage mother
-			self.s["TeenMa"] = 1
+			self.d["TeenMa"] = 1
 			self.score += 1
 
 	def __setPaAges__(self, h, line, birth, pb):
@@ -167,6 +167,6 @@ class UPDBRecord():
 				self.__setMaAges__(h, line, birth, mb)
 			if pb > 0:
 				self.__setPaAges__(h, line, birth, pb)
-		self.s["SibDeath"] = self.__getComparison__(h["NumSibsDieChildhood"], line, greater=1)
-		if self.s["SibDeath"] == 1:
+		self.d["SibDeath"] = self.__getComparison__(h["NumSibsDieChildhood"], line, greater=1)
+		if self.d["SibDeath"] == 1:
 			self.score += 1

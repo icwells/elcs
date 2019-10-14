@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from manifest import *
-from record import UPDBRecord
+from record import UPDBRecord, getRent
 from windowspath import *
 
 class Adversity():
@@ -73,7 +73,7 @@ class Adversity():
 
 	def __writeList__(self, outfile, l, header):
 		# Writes list to csv
-		length = len(header) + len(tail.split(","))
+		length = len(header) + len(self.newcol)
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
 			out.write(("{},{}\n").format(",".join(header), ",".join(self.newcol)))
@@ -89,17 +89,8 @@ class Adversity():
 	def __setMeasures__(self, l, k):
 		# Returns list with parental dates added
 		for idx, i in enumerate(l):
-			rec = UPDBRecords(self.headers[k], self.income, i)
-			ext, total = self.__getAges__(k, i)
-			n = self.__getComparison__(k, "NumSibsDieChildhood", i, greater=1)
-			ext.append(str(n))
-			if n == 1:
-				total += n
-			lst, n = self.__getIncomeMeasures__(k, i)
-			total += n
-			ext.extend(lst)
-			ext.append(str(total))
-			l[idx].extend(ext)
+			rec = UPDBRecord(self.headers[k], self.newcol, self.income, i)
+			l[idx].extend(rec.toList())
 		return l
 
 	def getAdversityScores(self):

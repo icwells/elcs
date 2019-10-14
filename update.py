@@ -44,7 +44,7 @@ def main():
 	c.writeXLSX()
 	c.printComplete()
 	# Get summaries and new histograms
-	summarize(args,ucr)
+	summarize(args.ucr)
 	Histograms()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 

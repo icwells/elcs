@@ -28,6 +28,7 @@ class Histograms():
 		sei = "Socio-Economic Index"
 		i = "Income (US dollars)"
 		v = "1940 Home Value (US dollars)"
+		r = "Rent (US dollars)"
 		self.axes["AgeMaD"] = [a, 85]
 		self.axes["MaAgeBr"] = [a, 55]
 		self.axes["AgePaD"] = [a, 85]
@@ -37,8 +38,11 @@ class Histograms():
 		self.axes["MaSEI1940"] = [sei, 100]
 		self.axes["PaCenNamPow"] = [np, 1000]
 		self.axes["PaSEI1940"] = [sei, 100]
-		self.axes["FamIncome"] = [i, None]
+		self.axes["EgoCenIncome"] = [i, None]
+		self.axes["MaCenIncome_New"] = [i, None]
+		self.axes["PaCenIncome_New"] = [i, None]
 		self.axes["HomeValue_Head1940"] = [v, None]
+		self.axes["RENT_ToHEAD"] = [r, None]
 
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent
