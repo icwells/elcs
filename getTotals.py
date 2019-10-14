@@ -56,8 +56,8 @@ class Counter():
 		self.header = {}
 		self.totals = {}
 		self.complete = {"P":0, "N":0, "C":0}
-		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaCenSEI", "PaCenNamPow", "PaCenSEI", "EgoCenIncome", 
-	             "MaCenIncome_New", "PaCenIncome_New", "HomeValue1940_New", "PaHomeValue1940_New", "MaHomeValue1940_New"]
+		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaSEI1940", 
+						"PaCenNamPow", "PaSEI1940", "FamIncome", "HomeValue_Head1940"]
 		self.__setFields__()
 		self.__getTotals__()
 

@@ -2,12 +2,16 @@
 
 from datetime import datetime
 from manifest import *
+from record import UPDBRecord
 from windowspath import *
 
 class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
+		self.newcol = ["AgeMaD", "MaAgeBr", "MaD<10", "MAlive18", "TeenMa", "AgePaD", "PaAgeBr", 
+					"PaD<10", "PAlive18", "SibDeath", "LowMaSEI", "LowMaNP", "LowPaSEI", "LowPaNP", 
+					"LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore"]
 		self.headers = {}
 		self.income = {}
 		self.caseout = ("{}updbCases.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
@@ -24,18 +28,23 @@ class Adversity():
 				idx = self.headers[key][k]
 				if idx < len(i):
 					val = i[idx].strip()
-				try:
-					v = float(val)
-					inc[k].append(v)
-				except ValueError:
-					pass
+					if k == "RENT_ToHEAD":
+						rent = getRent(val)
+						if rent >= 0:
+							inc[k].append(rent)
+					else:
+						try:
+							v = float(val)
+							inc[k].append(v)
+						except ValueError:
+							pass
 		return inc
 
 	def __setScores__(self):
 		# Determines 25% mark for income status measures
 		p = 0.25
 		inc = {"MaCenNamPow": [], "MaSEI1940": [], "PaCenNamPow": [], "PaSEI1940": [], "EgoCenIncome": [], 
-				"MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue1940_New": [], "PaHomeValue1940_New": [], "MaHomeValue1940_New": []}
+				"MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue_Head1940": [], "RENT_ToHEAD": []}
 		inc = self.__getTotals__("case", self.case, inc)
 		inc = self.__getTotals__("control", self.control, inc)
 		for k in inc.keys():
@@ -64,12 +73,10 @@ class Adversity():
 
 	def __writeList__(self, outfile, l, header):
 		# Writes list to csv
-		tail = ",AgeMaD,MaAgeBr,MaD<10,AgePaD,PaAgeBr,PaD<10,TeenMa,SibDeath,LowMaSEI,LowMaNP,LowPaSEI,LowPaNP"
-		tail += ",LowEgoInc,LowMaInc,LowPaInc,LowEgoHomeVal,LowMaHomeVal,LowPaHomeVal,>5Sibs,AdversityScore\n"
 		length = len(header) + len(tail.split(","))
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
-			out.write(",".join(header) + tail)
+			out.write(("{},{}\n").format(",".join(header), ",".join(self.newcol)))
 			for i in l:
 				if len(i) < length:
 					# Ensure empty cells are still present
@@ -79,110 +86,10 @@ class Adversity():
 
 #-----------------------------------------------------------------------------
 
-	def __lessThanTen__(self, v):
-		# Returns Y if <= 10 when parent died
-		if v != "NA" and int(v) <= 10:
-			return "1"
-		else:
-			return "0"
-
-	def __setAge__(self, p, e, filt = False):
-		# Returns string of p-e
-		ret = p-e
-		if filt and 13 <= ret <= 55:
-			return str(ret)
-		elif ret >= 0:
-			return str(ret)
-		else:
-			return "NA"
-
-	def __getCol__(self, k, c, line):
-		# Returns column value/-1
-		ret = -1
-		idx = self.headers[k][c]
-		if idx < len(line):
-			val = line[idx].strip()
-			if val is not None:
-				try:
-					ret = int(val)
-				except ValueError:
-					pass
-		return ret
-
-	def __getComparison__(self, k, c, line, less=None, greater=None):
-		# Performs given comparison, appends to ext and returns adversity point
-		ret = self.__getCol__(k, c, line)
-		if ret >= 0:
-			if less is not None and ret < less:
-				ret = 1
-			elif greater is not None and ret > greater:
-				ret = 1
-			else:
-				ret = 0
-		return ret
-
-	def __getIncomeMeasures__(self, k, line):
-		# Returns scores for mother/father income status and mumber of siblings controlling for income status
-		ret = []
-		n = 0
-		manp = self.__getComparison__(k, "MaCenNamPow", line, less=self.income["MaCenNamPow"])
-		masei = self.__getComparison__(k, "MaSEI1940", line, less=self.income["MaSEI1940"])
-		panp = self.__getComparison__(k, "PaCenNamPow", line, less=self.income["PaCenNamPow"])
-		pasei = self.__getComparison__(k, "PaSEI1940", line, less=self.income["PaSEI1940"])
-		eci = self.__getComparison__(k, "EgoCenIncome", line, less=self.income["EgoCenIncome"])
-		mci = self.__getComparison__(k, "MaCenIncome_New", line, less=self.income["MaCenIncome_New"])
-		pci = self.__getComparison__(k, "PaCenIncome_New", line, less=self.income["PaCenIncome_New"])
-		ehv = self.__getComparison__(k, "HomeValue1940_New", line, less=self.income["HomeValue1940_New"])
-		mhv = self.__getComparison__(k, "MaHomeValue1940_New", line, less=self.income["MaHomeValue1940_New"])
-		phv = self.__getComparison__(k, "PaHomeValue1940_New", line, less=self.income["PaHomeValue1940_New"])
-		# Give max of one point for low income status per self/parent
-		if eci == 1 or ehv == 1:
-			n += 1
-		if manp == 1 or masei == 1 or mci == 1 or mhv == 1:
-			n += 1
-		if panp == 1 or pasei == 1 or pci == 1 or phv == 1:
-			n += 1
-		sibs = self.__getComparison__(k, "NumSibs", line, greater=5)
-		if n > 1 and sibs == 1:
-			# Only consider large number of siblings adversity if low income
-			n += 1
-		for i in [manp, masei, panp, pasei, sibs, eci, mci, pci, ehv, mhv, phv]:
-			ret.append(str(i))
-		return ret, n		
-
-	def __getAges__(self, k, line):
-		# Returns age-based calculations
-		ret = 0
-		ext = ["NA", "NA", "NA", "NA", "NA", "NA", "0"] 
-		# Get self, mother's, and father's birth year
-		eb = self.__getCol__(k, "byr", line)
-		mb = self.__getCol__(k, "MaByr", line)
-		pb = self.__getCol__(k, "PaByr", line)
-		if eb > 0 and mb > 0 and pb > 0:
-			# Get parent death years
-			md = self.__getCol__(k, "MaDyr", line)
-			if md > 0:
-				ext[0] = self.__setAge__(md, eb)
-			ext[1] = self.__setAge__(eb, mb, True)
-			ext[2] = self.__lessThanTen__(ext[0])
-			if ext[2] == "1":
-				ret += 1
-			pd = self.__getCol__(k, "PaDyr", line)
-			if pd > 0:
-				ext[3] = self.__setAge__(pd, eb)
-			ext[4] = self.__setAge__(eb, pb, True)	
-			ext[5] = self.__lessThanTen__(ext[3])
-			if ext[5] == "1":
-				ret += 1
-			if ext[1] != "NA" and int(ext[1]) <= 18:
-				# Add 1 for teenage mother
-				ext[6] = "1"
-				ret += 1
-		return ext, ret
-
 	def __setMeasures__(self, l, k):
 		# Returns list with parental dates added
 		for idx, i in enumerate(l):
+			rec = UPDBRecords(self.headers[k], self.income, i)
 			ext, total = self.__getAges__(k, i)
 			n = self.__getComparison__(k, "NumSibsDieChildhood", i, greater=1)
 			ext.append(str(n))

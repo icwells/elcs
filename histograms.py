@@ -34,15 +34,11 @@ class Histograms():
 		self.axes["PaAgeBr"] = [a, 55]
 		self.axes["NumSibsDieChildhood"] = ["Number of Siblings", 13]
 		self.axes["MaCenNamPow"] = [np, 1000]
-		self.axes["MaCenSEI"] = [sei, 100]
+		self.axes["MaSEI1940"] = [sei, 100]
 		self.axes["PaCenNamPow"] = [np, 1000]
-		self.axes["PaCenSEI"] = [sei, 100]
-		self.axes["EgoCenIncome"] = [i, None]
-		self.axes["MaCenIncome_New"] = [i, None]
-		self.axes["PaCenIncome_New"] = [i, None]
-		self.axes["HomeValue1940_New"] = [v, None]
-		self.axes["PaHomeValue1940_New"] = [v, None]
-		self.axes["MaHomeValue1940_New"] = [v, None]
+		self.axes["PaSEI1940"] = [sei, 100]
+		self.axes["FamIncome"] = [i, None]
+		self.axes["HomeValue_Head1940"] = [v, None]
 
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent
