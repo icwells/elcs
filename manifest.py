@@ -36,15 +36,15 @@ def getInfiles(orig = True):
 	if orig == True:
 		# Read in original source data
 		infiles["ucr"] = "Z:/u0918416/Amycasedat_051916.csv"
-		infiles["case"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_20190924.txt"
-		infiles["control"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_Ctrl_20190924.txt"
+		infiles["case"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_20191015.txt"
+		infiles["control"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_Ctrl_20191015.txt"
+		for k in infiles.keys():
+			checkFile(infiles[k])
 	else:
 		# Read updated files
 		infiles["ucr"] = __getNewest__("Z:/ELCS/ucr.*.csv")
 		infiles["case"] = __getNewest__("Z:/ELCS/updbCases.*.csv")
 		infiles["control"] = __getNewest__("Z:/ELCS/updbControl.*.csv")
-	for k in infiles.keys():
-		checkFile(infiles[k])
 	return infiles
 
 def setPath():

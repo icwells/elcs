@@ -57,7 +57,7 @@ class Counter():
 		self.totals = {}
 		self.complete = {"P":0, "N":0, "C":0}
 		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaSEI1940", 
-						"PaCenNamPow", "PaSEI1940", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New", "HomeValue_Head1940", "RENT_ToHEAD"]
+						"PaCenNamPow", "PaSEI1940", "HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
 		self.__setFields__()
 		self.__getTotals__()
 
@@ -66,17 +66,26 @@ class Counter():
 		for i in self.columns:
 			self.totals[i] = Total()
 
+	def __parentAlive__(self, k, row):
+		# Determines if given parent is still alive
+		if k == "AgeMaD" and row[self.header["MAlive18"]] == "1":
+			return True
+		elif k == "AgePaD" and row[self.header["PAlive18"]] == "1":
+			return True
+		return False
+
 	def __parseRow__(self, status, row):
 		# Extracts relevant data from row
 		complete = True
+		end = len(self.columns[:-5])
 		for idx, k in enumerate(self.columns):
 			try:
 				val = int(row[self.header[k]])
 				self.totals[k].add(status, val)
-				if idx < 9 and val < 0:
+				if idx < end and val < 0 and not self.__parentAlive__(k, row):
 					complete = False
 			except:
-				if idx < 9:
+				if idx < end and not self.__parentAlive__(k, row):
 					complete = False
 		if complete == True:
 			self.complete[status] += 1

@@ -131,12 +131,12 @@ class UPDBRecord():
 			self.d["AgeMaD"] = self.__setAge__(md, birth)
 		self.d["MaAgeBr"] = self.__setAge__(birth, mb, True)
 		self.d["MaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		'''if self.d["MaD<10"] == 0:
-			lastseen = self.__getCol__(h["????"], line)
+		if self.d["MaD<10"] == 0:
+			lastseen = self.__getCol__(h["lastLivingDate"], line)
 			self.d["MAlive18"] = self.__setAge__(lastseen, birth)
-		else if self.d["MaD<10"] == 1:
+		elif self.d["MaD<10"] == 1:
 			self.d["MAlive18"] = 0
-			self.score += 1'''
+			self.score += 1
 		if 0 <= self.d["MaAgeBr"] <= 18:
 			# Set 1 for teenage mother
 			self.d["TeenMa"] = 1
@@ -149,12 +149,12 @@ class UPDBRecord():
 			self.d["AgePaD"] = self.__setAge__(pd, birth)
 		self.d["PaAgeBr"] = self.__setAge__(birth, pb, True)	
 		self.d["PaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		'''if self.pd10 != 1:
-			lastseen = self.__getCol__(h["????"], line)
+		if self.d["PaD<10"] != 1:
+			lastseen = self.__getCol__(h["lastLivingDate"], line)
 			self.d["PAlive18"] = self.__setAge__(lastseen, birth)
-		else if self.d["PaD<10"] == 1:
+		elif self.d["PaD<10"] == 1:
 			self.score += 1
-			self.d["PAlive18"] = 0'''
+			self.d["PAlive18"] = 0
 
 	def __setAges__(self, h, line):
 		# Stores age-based calculations
