@@ -9,6 +9,16 @@ from numpy import ones_like
 import os
 from windowspath import *
 
+class PlotAttributes():
+
+	def __init__(self, label, xmin=0, xmax=None, ymin=0, ymax=None):
+		# Stores attributes for specific plots
+		self.label = label
+		self.xmin = xmin
+		self.xmax = xmax
+		self.ymin = ymin
+		self.ymax = ymax		
+
 class Histograms():
 
 	def __init__(self):
@@ -17,7 +27,7 @@ class Histograms():
 		self.legend = "upper right"
 		self.outdir = checkDir(setPath() + "histograms", True)
 		self.axes = {}
-		self.data = Counter()
+		self.data = Counter(False)
 		self.__setAxes__()
 		self.__plotHistograms__()
 
@@ -27,22 +37,20 @@ class Histograms():
 		np = "Nam Powers Score"
 		sei = "Socio-Economic Index"
 		i = "Income (US dollars)"
-		v = "1940 Home Value (US dollars)"
-		r = "Rent (US dollars)"
-		self.axes["AgeMaD"] = [a, 85]
-		self.axes["MaAgeBr"] = [a, 55]
-		self.axes["AgePaD"] = [a, 85]
-		self.axes["PaAgeBr"] = [a, 55]
-		self.axes["NumSibsDieChildhood"] = ["Number of Siblings", 13]
-		self.axes["MaCenNamPow"] = [np, 1000]
-		self.axes["MaSEI1940"] = [sei, 100]
-		self.axes["PaCenNamPow"] = [np, 1000]
-		self.axes["PaSEI1940"] = [sei, 100]
-		self.axes["EgoCenIncome"] = [i, None]
-		self.axes["MaCenIncome_New"] = [i, None]
-		self.axes["PaCenIncome_New"] = [i, None]
-		self.axes["HomeValue_Head1940"] = [v, None]
-		self.axes["RENT_ToHEAD"] = [r, None]
+		self.axes["AgeMaD"] = PlotAttributes(a, xmax=85)
+		self.axes["MaAgeBr"] = PlotAttributes(a, xmin=10, xmax=55)
+		self.axes["AgePaD"] = PlotAttributes(a, xmax=85)
+		self.axes["PaAgeBr"] = PlotAttributes(a, xmin=10, xmax=70)
+		self.axes["NumSibsDieChildhood"] = PlotAttributes("Number of Siblings", xmax=13)
+		self.axes["MaCenNamPow"] = PlotAttributes(np, xmax=1000)
+		self.axes["MaSEI1940"] = PlotAttributes(sei, xmax=100)
+		self.axes["PaCenNamPow"] = PlotAttributes(np, xmax=1000)
+		self.axes["PaSEI1940"] = PlotAttributes(sei, xmax=100)
+		self.axes["EgoCenIncome"] = PlotAttributes(i)
+		self.axes["MaCenIncome_New"] = PlotAttributes(i)
+		self.axes["PaCenIncome_New"] = PlotAttributes(i)
+		self.axes["HomeValue_Head1940"] = PlotAttributes("1940 Home Value (US dollars)")
+		self.axes["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
 
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent
@@ -54,14 +62,17 @@ class Histograms():
 
 	def __trimList__(self, k, l):
 		# Trims given list an returns
-		idx = -1
 		l.sort()
-		for i in range(len(l)-1, 0, -1):
-			if l[i] <= self.axes[k][1]:
-				break
-			idx = i
-		if idx > 0:
-			l = l[:idx]
+		if self.axes[k].xmin != 0:
+			for i in range(len(l)):
+				if l[i] >= self.axes[k].xmin:
+					l = l[i:]
+					break
+		if self.axes[k].xmax is not None:
+			for i in range(len(l)-1, 0, -1):
+				if l[i] <= self.axes[k].xmax:
+					l = l[:i]
+					break
 		return l
 
 	def __trimLists__(self, k):
@@ -71,30 +82,30 @@ class Histograms():
 		self.data.totals[k].neg = self.__trimList__(k, self.data.totals[k].neg)
 
 	def __setBins__(self, k):
-		# Returns number of bins and xlim for hist
+		# Returns number of bins and stores xmax for hist
 		keys = self.data.totals[k].setKeys()
-		return min(100, len(keys)), max(keys)
+		if self.axes[k].xmax is None:
+			self.axes[k].xmax = max(keys)
+		return min(100, len(keys))
 
 	def __plot__(self, k):
 		# Adds histogram to figure pane
 		print(("\tPlotting {}...").format(k))
-		bins, xl = self.__setBins__(k)
-		if self.axes[k][1] is not None:
-			if xl > self.axes[k][1]:
-				self.__trimLists__(k)
-			xl = self.axes[k][1]
-		w = self.__setWeights__(k)
 		fig, ax = pyplot.subplots(nrows = 1, ncols = 1)
-		ax.hist([self.data.totals[k].pos, self.data.totals[k].neg, self.data.totals[k].control], bins, weights = w, label = self.label)
-		ax.set_xlim(0, xl)
-		ax.set(title = k, ylabel = "Percent Frequency", xlabel = self.axes[k][0])
+		ax.hist([self.data.totals[k].pos, self.data.totals[k].neg, self.data.totals[k].control], 
+				self.__setBins__(k), weights = self.__setWeights__(k), label = self.label)
+		ax.set(title = k, ylabel = "Percent Frequency", xlabel = self.axes[k].label)
+		ax.set_xlim(0, self.axes[k].xmax)
 		ax.yaxis.set_major_formatter(ticker.PercentFormatter())
+		#if self.axes[k].ymin != 0 or self.axes[k].ymax is not None:
+		#	ax.set_ylim(self.axes[k].ymin, self.axes[k].ymax)
 		ax.legend(loc=self.legend)
 		fig.savefig(("{}{}.{}.svg").format(self.outdir, k, datetime.now().strftime("%Y-%m-%d")))
 
 	def __plotHistograms__(self):
 		# Plots histograms by related fields
 		for k in self.data.columns:
+			self.__trimLists__(k)
 			self.__plot__(k)
 
 def main():

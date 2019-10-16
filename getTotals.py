@@ -10,19 +10,21 @@ from windowspath import *
 
 class Total():
 
-	def __init__(self):
+	def __init__(self, countMissing):
+		self.missing = countMissing
 		self.pos = []
 		self.neg = []
 		self.control = []
 
 	def add(self, status, val):
 		# Adds value to appropriate dict
-		if status == "P":
-			self.pos.append(val)
-		elif status == "N":
-			self.neg.append(val)
-		else:
-			self.control.append(val)
+		if self.missing or val >= 0:
+			if status == "P":
+				self.pos.append(val)
+			elif status == "N":
+				self.neg.append(val)
+			else:
+				self.control.append(val)
 
 	def setKeys(self):
 		# Get sorted list of all keys
@@ -50,7 +52,7 @@ class Total():
 
 class Counter():
 
-	def __init__(self):
+	def __init__(self, countMissing=True):
 		self.infile = getMergedFile()
 		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
@@ -58,13 +60,13 @@ class Counter():
 		self.complete = {"P":0, "N":0, "C":0}
 		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaSEI1940", 
 						"PaCenNamPow", "PaSEI1940", "HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
-		self.__setFields__()
+		self.__setFields__(countMissing)
 		self.__getTotals__()
 
-	def __setFields__(self):
+	def __setFields__(self, countMissing):
 		# Sets new dict for each field in self.totals
 		for i in self.columns:
-			self.totals[i] = Total()
+			self.totals[i] = Total(countMissing)
 
 	def __parentAlive__(self, k, row):
 		# Determines if given parent is still alive
