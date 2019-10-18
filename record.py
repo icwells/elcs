@@ -132,8 +132,9 @@ class UPDBRecord():
 		self.d["MaAgeBr"] = self.__setAge__(birth, mb, True)
 		self.d["MaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
 		if self.d["MaD<10"] == 0:
-			lastseen = self.__getCol__(h["lastLivingDate"], line)
-			self.d["MAlive18"] = self.__setAge__(lastseen, birth)
+			lastseen = self.__getCol__(h["MaLastResUtahDate"], line)
+			if lastseen >= 0 and self.__setAge__(lastseen, birth) >= 18:
+				self.d["MAlive18"] = 1
 		elif self.d["MaD<10"] == 1:
 			self.d["MAlive18"] = 0
 			self.score += 1
@@ -150,8 +151,9 @@ class UPDBRecord():
 		self.d["PaAgeBr"] = self.__setAge__(birth, pb, True)	
 		self.d["PaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
 		if self.d["PaD<10"] != 1:
-			lastseen = self.__getCol__(h["lastLivingDate"], line)
-			self.d["PAlive18"] = self.__setAge__(lastseen, birth)
+			lastseen = self.__getCol__(h["PaLastResUtahDate"], line)
+			if lastseen >= 0 and self.__setAge__(lastseen, birth) >= 18:
+				self.d["PAlive18"] = 1
 		elif self.d["PaD<10"] == 1:
 			self.score += 1
 			self.d["PAlive18"] = 0

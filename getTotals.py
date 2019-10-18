@@ -58,8 +58,8 @@ class Counter():
 		self.header = {}
 		self.totals = {}
 		self.complete = {"P":0, "N":0, "C":0}
-		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaSEI1940", 
-						"PaCenNamPow", "PaSEI1940", "HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
+		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MaCenNamPow", "MaCenSEI", 
+						"PaCenNamPow", "PaCenSEI", "HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
 		self.__setFields__(countMissing)
 		self.__getTotals__()
 
