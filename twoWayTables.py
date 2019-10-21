@@ -8,17 +8,28 @@ from windowspath import *
 
 class Tables():
 
-	def __init__(self, x, y):
+	def __init__(self, x, y, mx):
 		self.infile = getMergedFile()
 		self.outfile = ("{}adversityTables.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.x = x
 		self.y = y
+		self.max = mx
 		self.d = ""
 		self.head = {}
 		self.df = None
+		self.illogical = []
 		self.__setDataFrame__()
 		self.__getTable__()
 		self.__writeTable__()
+		self.__writeIllogical__()
+
+	def __writeIllogical__(self):
+		# Writes list of illogical values to file
+		if len(self.illogical) > 1:
+			outfile = ("{}{}.Illogical.csv").format(setPath(), self.x)
+			with open(outfile, "w") as out:
+				for line in self.illogical:
+					out.write(",".join(line) + "\n")
 
 	def __writeTable__(self):
 		# Writes or appends table to file
@@ -50,8 +61,12 @@ class Tables():
 					if len(s) >= self.head["Case"]:
 						x = self.__getValue__(s[self.head[self.x]])
 						y = self.__getValue__(s[self.head[self.y]])
-						if x >= 0 and y >= 0 and x <= y:
-							self.df.loc[x, y] += 1
+						if x >= 0 and y >= 0:
+							if x > y or y > self.max:
+								# Record illogical values
+								self.illogical.append(s)
+							else:
+								self.df.loc[x, y] += 1
 				else:
 					first = False
 
@@ -73,12 +88,16 @@ class Tables():
 						except ValueError:
 							pass
 						try:
-							col.add(int(s[self.head[self.y]]))
+							y = int(s[self.head[self.y]])
+							if y <= self.max:
+								col.add(y)
 						except ValueError:
 							pass
 				else:
 					self.d = getDelim(line)
-					self.head = setHeader(line.split(self.d))
+					header = line.split(self.d)
+					self.head = setHeader(header)
+					self.illogical.append(header)
 					first = False
 		col = list(col)
 		col.sort()
@@ -90,7 +109,7 @@ class Tables():
 def main():
 	start = datetime.now()
 	print("\n\tCreating two-way tables...")
-	t = Tables("NumSibsDieChildhood", "NumSibs")
+	t = Tables("NumSibsDieChildhood", "NumSibs", 30)
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
