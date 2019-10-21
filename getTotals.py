@@ -86,7 +86,7 @@ class Counter():
 				self.totals[k].add(status, val)
 				if idx < end and val < 0 and not self.__parentAlive__(k, row):
 					complete = False
-			except:
+			except ValueError:
 				if idx < end and not self.__parentAlive__(k, row):
 					complete = False
 		if complete == True:

@@ -79,6 +79,25 @@ class UPDBRecord():
 					pass
 		return ret
 
+	def __aliveAt18__(self, idx, line, birth):
+		# Returns -1/0/1 if parent alive when ego was 18
+		ret = -1
+		val = line[idx].strip()
+		if val is not None:
+			if "/" in val:
+				# Strip month and day
+				val = val.split("/")[-1]
+			try:
+				v = int(val)
+				if v >= 0:
+					ret = 0
+					if v - birth >= 18:
+						ret = 1
+						print(v)
+			except ValueError:
+					pass
+		return ret		
+
 	def __setIncome__(self, h, income, line):
 		# Finds single income value for family
 		eci = self.__getComparison__(h["EgoCenIncome"], line, less=income["EgoCenIncome"])
@@ -131,11 +150,9 @@ class UPDBRecord():
 			self.d["AgeMaD"] = self.__setAge__(md, birth)
 		self.d["MaAgeBr"] = self.__setAge__(birth, mb, True)
 		self.d["MaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["MaD<10"] == 0:
-			lastseen = self.__getCol__(h["MaLastResUtahDate"], line)
-			if lastseen >= 0 and self.__setAge__(lastseen, birth) >= 18:
-				self.d["MAlive18"] = 1
-		elif self.d["MaD<10"] == 1:
+		if self.d["MaD<10"] != 1:
+			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastResUtahDate"], line, birth)
+		else:
 			self.d["MAlive18"] = 0
 			self.score += 1
 		if 0 <= self.d["MaAgeBr"] <= 18:
@@ -151,10 +168,8 @@ class UPDBRecord():
 		self.d["PaAgeBr"] = self.__setAge__(birth, pb, True)	
 		self.d["PaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
 		if self.d["PaD<10"] != 1:
-			lastseen = self.__getCol__(h["PaLastResUtahDate"], line)
-			if lastseen >= 0 and self.__setAge__(lastseen, birth) >= 18:
-				self.d["PAlive18"] = 1
-		elif self.d["PaD<10"] == 1:
+			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastResUtahDate"], line, birth)
+		else:
 			self.score += 1
 			self.d["PAlive18"] = 0
 

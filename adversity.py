@@ -60,7 +60,9 @@ class Adversity():
 		print(("\tReading {} file...").format(k))
 		with open(self.infiles[k], "r") as f:
 			for line in f:
-				line = line.lstrip().replace("\n", "")
+				# Replace whitespace characters to retain spacing
+				line = line.replace("\t", ",")
+				line = line.strip()
 				if first == False:
 					ret.append(line.split(d))
 				else:
@@ -73,15 +75,10 @@ class Adversity():
 
 	def __writeList__(self, outfile, l, header):
 		# Writes list to csv
-		length = len(header) + len(self.newcol)
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
 			out.write(("{},{}\n").format(",".join(header), ",".join(self.newcol)))
 			for i in l:
-				if len(i) < length:
-					# Ensure empty cells are still present
-					for idx in range(length-len(i)-1):
-						i.append("")
 				out.write(",".join(i) + "\n")
 
 #-----------------------------------------------------------------------------

@@ -28,6 +28,7 @@ def main():
 	start = datetime.now()
 	parser = ArgumentParser("Updates all relevant files.")
 	parser.add_argument("--ucr", action = "store_true", default = False, help = "Add ER column to updated UCR file.")
+	parser.add_argument("--hist", action = "store_true", default = False, help = "Plot new histograms.")
 	args = parser.parse_args()
 	if args.ucr:
 		print("\n\tUpdating ER status in UCR records...")
@@ -45,7 +46,8 @@ def main():
 	c.printComplete()
 	# Get summaries and new histograms
 	summarize(args.ucr)
-	Histograms()
+	if args.hist:
+		Histograms()
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
