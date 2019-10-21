@@ -84,8 +84,10 @@ class UPDBRecord():
 		ret = -1
 		val = line[idx].strip()
 		if val is not None:
-			if "/" in val:
-				# Strip month and day
+			# Strip month and day
+			if "-" in val:
+				val = val.split("-")[0]
+			elif "/" in val:
 				val = val.split("/")[-1]
 			try:
 				v = int(val)
@@ -93,7 +95,6 @@ class UPDBRecord():
 					ret = 0
 					if v - birth >= 18:
 						ret = 1
-						print(v)
 			except ValueError:
 					pass
 		return ret		
@@ -150,11 +151,11 @@ class UPDBRecord():
 			self.d["AgeMaD"] = self.__setAge__(md, birth)
 		self.d["MaAgeBr"] = self.__setAge__(birth, mb, True)
 		self.d["MaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["MaD<10"] != 1:
-			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastResUtahDate"], line, birth)
-		else:
+		if self.d["MaD<10"] == 0:
 			self.d["MAlive18"] = 0
 			self.score += 1
+		else:
+			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastResUtahDate"], line, birth)
 		if 0 <= self.d["MaAgeBr"] <= 18:
 			# Set 1 for teenage mother
 			self.d["TeenMa"] = 1
@@ -167,11 +168,11 @@ class UPDBRecord():
 			self.d["AgePaD"] = self.__setAge__(pd, birth)
 		self.d["PaAgeBr"] = self.__setAge__(birth, pb, True)	
 		self.d["PaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["PaD<10"] != 1:
-			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastResUtahDate"], line, birth)
-		else:
+		if self.d["PaD<10"] == 0:
 			self.score += 1
 			self.d["PAlive18"] = 0
+		else:
+			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastResUtahDate"], line, birth)
 
 	def __setAges__(self, h, line):
 		# Stores age-based calculations
