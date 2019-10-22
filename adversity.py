@@ -10,7 +10,7 @@ class Adversity():
 	def __init__(self):
 		self.infiles = getInfiles()
 		self.newcol = ["AgeMaD", "MaAgeBr", "MaD<10", "MAlive18", "TeenMa", "AgePaD", "PaAgeBr", 
-					"PaD<10", "PAlive18", "SibDeath", "LowMaSEI", "LowMaNP", "LowPaSEI", "LowPaNP", 
+					"PaD<10", "PAlive18", "SibDeath","MergedSEI", "MergedNP", "LowSES", 
 					"LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore"]
 		self.headers = {}
 		self.income = {}
@@ -25,16 +25,19 @@ class Adversity():
 		for i in l:
 			for k in inc.keys():
 				# Isolate each target value
-				idx = self.headers[key][k]
-				if idx < len(i):
-					val = i[idx].strip()
-					if k == "RENT_ToHEAD":
-						rent = getRent(val)
-						if rent >= 0:
-							inc[k].append(rent)
-					else:
+				if k == "MergedSEI":
+					v = getMax(self.headers[key]["MaCenSEI"], self.headers[key]["PaCenSEI"], i)
+					if v >= 0:
+						inc[k].append(v)
+				elif k == "MergedNP":
+					v = getMax(self.headers[key]["MaCenNamPow"], self.headers[key]["PaCenNamPow"], i)
+					if v >= 0:
+						inc[k].append(v)
+				else:
+					idx = self.headers[key][k]
+					if idx < len(i):
 						try:
-							v = float(val)
+							v = float(i[idx].strip())
 							inc[k].append(v)
 						except ValueError:
 							pass
@@ -43,8 +46,7 @@ class Adversity():
 	def __setScores__(self):
 		# Determines 25% mark for income status measures
 		p = 0.25
-		inc = {"MaCenNamPow": [], "MaSEI1940": [], "PaCenNamPow": [], "PaSEI1940": [], "EgoCenIncome": [], 
-				"MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue_Head1940": [], "RENT_ToHEAD": []}
+		inc = {"MergedSEI": [], "MergedNP": [], "EgoCenIncome": [], "MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue_Head1940": []}
 		inc = self.__getTotals__("case", self.case, inc)
 		inc = self.__getTotals__("control", self.control, inc)
 		for k in inc.keys():

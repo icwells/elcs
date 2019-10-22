@@ -12,6 +12,21 @@ def getRent(val):
 			pass
 	return ret
 
+def getMax(x, y, line):
+	# Returns higher value of line[x] or line[y]
+	ret = -1
+	vals = []
+	for i in [x, y]:
+		if i < len(line):
+			try:
+				v = float(line[i].strip())
+				vals.append(v)
+			except ValueError:
+				pass
+	if len(vals) > 0:
+		ret = max(vals)
+	return ret
+
 class UPDBRecord():
 
 	def __init__(self, h, columns, income, line):
@@ -111,36 +126,30 @@ class UPDBRecord():
 
 	def __setHomeVal__(self, h, income, line):
 		# Sets vlaues for low rent/home value
+		self.d["LowHomeVal"] = -1
 		own = self.__getCol__(h["OWNERSHP_ToHEAD"], line)
 		if own == 1:
 			self.d["LowHomeVal"] = self.__getComparison__(h["HomeValue_Head1940"], line, less=income["HomeValue_Head1940"])
 		elif own == 2:
-			rent = getRent(line[h["RENT_ToHEAD"]])
-			if rent >= 0:
-				if rent <= income["RENT_ToHEAD"]:
-					self.d["LowHomeVal"] = 1
-				else:
-					self.d["LowHomeVal"] = 0
+			self.d["LowHomeVal"] = 1
 
 	def __setIncomeMeasures__(self, h, income, line):
 		# Sets values for income
-		low = False
-		self.d["LowMaNP"] = self.__getComparison__(h["MaCenNamPow"], line, less=income["MaCenNamPow"])
-		self.d["LowMaSEI"] = self.__getComparison__(h["MaSEI1940"], line, less=income["MaSEI1940"])
-		self.d["LowPaNP"] = self.__getComparison__(h["PaCenNamPow"], line, less=income["PaCenNamPow"])
-		self.d["LowPaSEI"] = self.__getComparison__(h["PaSEI1940"], line, less=income["PaSEI1940"])
+		self.d["LowSES"] = -1
+		self.d["MergedSEI"] = getMax(h["MaCenSEI"], h["PaCenSEI"], line)
+		self.d["MergedNP"] = getMax(h["MaCenNamPow"], h["PaCenNamPow"], line)
+		if self.d["MergedSEI"] > 0 or self.d["MergedNP"] > 0:
+			self.d["LowSES"] = 0
+			if self.d["MergedSEI"] < income["MergedSEI"] or self.d["MergedNP"] < income["MergedNP"]:
+				self.d["LowSES"] = 1
 		self.__setIncome__(h, income, line)
 		self.__setHomeVal__(h, income, line)
 		# Give max of one point for low income status per self/parent
-		if self.d["LowMaSEI"] == 1 or self.d["LowMaNP"] == 1:
+		if self.d["LowSES"] == 1:
 			self.score += 1
-			low = True
-		if self.d["LowPaSEI"] == 1 or self.d["LowPaNP"] == 1:
-			self.score += 1
-			low = True
 		self.d[">5Sibs"] = self.__getComparison__(h["NumSibs"], line, greater=5)
 		if self.d[">5Sibs"]:
-			if low or self.d["LowIncome"] == 1 or self.d["LowHomeVal"] == 1:
+			if self.d["LowSES"] == 1 or self.d["LowIncome"] == 1 or self.d["LowHomeVal"] == 1:
 				# Only consider large number of siblings adversity if low income
 				self.score += 1
 
