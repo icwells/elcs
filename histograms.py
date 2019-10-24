@@ -112,7 +112,7 @@ class Histograms():
 		ax.set_xticks(ticks)
 		ax.set_xticklabels(self.data.columns, rotation='vertical')
 		ax.yaxis.set_major_formatter(ticker.PercentFormatter())
-		ax.legend(loc=self.legend)
+		ax.legend(loc = "upper left")
 		fig.subplots_adjust(bottom=0.4)
 		fig.savefig(("{}NApercents.{}.svg").format(self.outdir, datetime.now().strftime("%Y-%m-%d")))
 

@@ -19,7 +19,7 @@ def getMax(x, y, line):
 	for i in [x, y]:
 		if i < len(line):
 			try:
-				v = float(line[i].strip())
+				v = int(line[i].strip())
 				vals.append(v)
 			except ValueError:
 				pass
