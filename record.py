@@ -30,7 +30,6 @@ def getMax(x, y, line):
 class UPDBRecord():
 
 	def __init__(self, h, columns, income, line):
-		self.score = 0
 		self.d = OrderedDict()
 		self.__setDict__(columns)
 		self.__setAges__(h, line)
@@ -40,13 +39,28 @@ class UPDBRecord():
 		# Initialized dict by column name (skip adversity score column)
 		for k in columns[:-1]:
 			self.d[k] = -1
+
+	def __setScore__(self):
+		# Returns score as string
+		ret = 0
+		inc = 0
+		for k in ["MaD<10", "TeenMa", "PaD<10", "SibDeath"]:
+			if self.d[k] == 1:
+				ret += 1
+		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
+			if self.d[k] == 1:
+				inc += 1
+		if self.d[">5Sibs"] == 1 and inc > 0:
+			ret += 1
+		ret += inc
+		return str(ret)
 	
 	def toList(self):
 		# Returns stored values as list of strings
 		ret = []
 		for k in self.d.keys():
 			ret.append(str(self.d[k]))
-		ret.append(str(self.score))
+		ret.append(self.__setScore__())
 		return ret
 
 #-----------------------------------------------------------------------------
@@ -64,7 +78,7 @@ class UPDBRecord():
 		return ret
 
 	def __lessThanTen__(self, v):
-		# Returns Y if <= 10 when parent died
+		# Returns 1 if <= 10 when parent died
 		if 0 <= v <= 10:
 			return 1
 		elif v >= 0:
@@ -124,6 +138,7 @@ class UPDBRecord():
 		elif eci == 0 or mci == 0 or pci == 0: 
 			self.d["LowIncome"] = 0
 
+
 	def __setHomeVal__(self, h, income, line):
 		# Sets vlaues for low rent/home value
 		self.d["LowHomeVal"] = -1
@@ -144,14 +159,7 @@ class UPDBRecord():
 				self.d["LowSES"] = 1
 		self.__setIncome__(h, income, line)
 		self.__setHomeVal__(h, income, line)
-		# Give max of one point for low income status per self/parent
-		if self.d["LowSES"] == 1:
-			self.score += 1
 		self.d[">5Sibs"] = self.__getComparison__(h["NumSibs"], line, greater=5)
-		if self.d[">5Sibs"]:
-			if self.d["LowSES"] == 1 or self.d["LowIncome"] == 1 or self.d["LowHomeVal"] == 1:
-				# Only consider large number of siblings adversity if low income
-				self.score += 1
 
 	def __setMaAges__(self, h, line, birth, mb):
 		# Sets values relating to mother's age
@@ -160,15 +168,15 @@ class UPDBRecord():
 			self.d["AgeMaD"] = self.__setAge__(md, birth)
 		self.d["MaAgeBr"] = self.__setAge__(birth, mb, True)
 		self.d["MaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["MaD<10"] == 0:
+		if self.d["MaD<10"] == 1:
 			self.d["MAlive18"] = 0
-			self.score += 1
+		elif self.d["AgeMaD"] >= 18:
+			self.d["MAlive18"] = 1
 		else:
 			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastResUtahDate"], line, birth)
 		if 0 <= self.d["MaAgeBr"] <= 18:
 			# Set 1 for teenage mother
 			self.d["TeenMa"] = 1
-			self.score += 1
 
 	def __setPaAges__(self, h, line, birth, pb):
 		# Sets values relating to father's age
@@ -177,9 +185,10 @@ class UPDBRecord():
 			self.d["AgePaD"] = self.__setAge__(pd, birth)
 		self.d["PaAgeBr"] = self.__setAge__(birth, pb, True)	
 		self.d["PaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["PaD<10"] == 0:
-			self.score += 1
+		if self.d["PaD<10"] == 1:
 			self.d["PAlive18"] = 0
+		elif self.d["AgePaD"] >= 18:
+			self.d["PAlive18"] = 1
 		else:
 			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastResUtahDate"], line, birth)
 
@@ -195,5 +204,3 @@ class UPDBRecord():
 			if pb > 0:
 				self.__setPaAges__(h, line, birth, pb)
 		self.d["SibDeath"] = self.__getComparison__(h["NumSibsDieChildhood"], line, greater=1)
-		if self.d["SibDeath"] == 1:
-			self.score += 1

@@ -21,13 +21,13 @@ class PlotAttributes():
 
 class Histograms():
 
-	def __init__(self):
+	def __init__(self, counter):
 		pyplot.style.use("seaborn-deep")
 		self.label = ["ER+", "ER-", "Control"]
 		self.legend = "upper right"
 		self.outdir = checkDir(setPath() + "histograms", True)
 		self.axes = {}
-		self.data = Counter(False)
+		self.data = counter
 		self.__setAxes__()
 		self.__plotHistograms__()
 
@@ -48,7 +48,7 @@ class Histograms():
 		self.axes["MaCenIncome_New"] = PlotAttributes(i)
 		self.axes["PaCenIncome_New"] = PlotAttributes(i)
 		self.axes["HomeValue_Head1940"] = PlotAttributes("1940 Home Value (US dollars)")
-		self.axes["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
+		self.axes["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)", xmin=1)
 
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent
@@ -103,12 +103,12 @@ class Histograms():
 	def __plotHistograms__(self):
 		# Plots histograms by related fields
 		for k in self.data.columns:
-			self.__trimLists__(k)
+			self.data.totals[k].trim(self.axes[k].xmax, self.axes[k].xmin)
 			self.__plot__(k)
 
 def main():
 	start = datetime.now()
-	Histograms()
+	Histograms(Counter())
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":

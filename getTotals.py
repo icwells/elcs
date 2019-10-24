@@ -10,21 +10,48 @@ from windowspath import *
 
 class Total():
 
-	def __init__(self, countMissing):
-		self.missing = countMissing
+	def __init__(self):
 		self.pos = []
 		self.neg = []
 		self.control = []
 
+	def getNA(self):
+		# Returns number of NAs by ER status
+		ret = []
+		ret.append(self.pos.count(-1))
+		ret.append(self.neg.count(-1))
+		ret.append(self.control.count(-1))
+		return ret 
+
 	def add(self, status, val):
 		# Adds value to appropriate dict
-		if self.missing or val >= 0:
-			if status == "P":
-				self.pos.append(val)
-			elif status == "N":
-				self.neg.append(val)
-			else:
-				self.control.append(val)
+		if status == "P":
+			self.pos.append(val)
+		elif status == "N":
+			self.neg.append(val)
+		else:
+			self.control.append(val)
+
+	def __trimList__(self, l, less, greater):
+		# Trims given list
+		l.sort()
+		if less is not None:
+			for i in range(len(l)):
+				if l[i] >= less:
+					l = l[i:]
+					break
+		if greater is not None:
+			for i in range(len(l)-1, 0, -1):
+				if l[i] <= greater:
+					l = l[:i+1]
+					break
+		return l
+
+	def trim(self, less=None, greater=None):
+		# Removes values greater than greater or less than less from lists
+		self.pos = self.__trimList__(self.pos, less, greater)
+		self.neg = self.__trimList__(self.neg, less, greater)
+		self.control = self.__trimList__(self.control, less, greater)
 
 	def setKeys(self):
 		# Get sorted list of all keys
@@ -52,7 +79,7 @@ class Total():
 
 class Counter():
 
-	def __init__(self, countMissing=True):
+	def __init__(self):
 		self.infile = getMergedFile()
 		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
@@ -60,13 +87,13 @@ class Counter():
 		self.complete = {"P":0, "N":0, "C":0}
 		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibsDieChildhood", "MergedSEI", 
 						"MergedNP", "HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
-		self.__setFields__(countMissing)
+		self.__setFields__()
 		self.__getTotals__()
 
-	def __setFields__(self, countMissing):
+	def __setFields__(self):
 		# Sets new dict for each field in self.totals
 		for i in self.columns:
-			self.totals[i] = Total(countMissing)
+			self.totals[i] = Total()
 
 	def __parentAlive__(self, k, row):
 		# Determines if given parent is still alive
@@ -79,16 +106,16 @@ class Counter():
 	def __parseRow__(self, status, row):
 		# Extracts relevant data from row
 		complete = True
-		end = len(self.columns[:-5])
+		end = 4
 		for idx, k in enumerate(self.columns):
 			try:
 				val = int(row[self.header[k]])
-				self.totals[k].add(status, val)
-				if idx < end and val < 0 and not self.__parentAlive__(k, row):
-					complete = False
 			except ValueError:
-				if idx < end and not self.__parentAlive__(k, row):
-					complete = False
+				# Record NAs
+				val = -1
+			self.totals[k].add(status, val)
+			if idx < end and val < 0 and not self.__parentAlive__(k, row):
+				complete = False
 		if complete == True:
 			self.complete[status] += 1
 

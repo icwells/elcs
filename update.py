@@ -40,14 +40,14 @@ def main():
 	print("\n\tMerging UPDB and UCR records...")
 	merger = DatabaseMerger()
 	merger.merge()
+	# Get summaries
+	summarize(args.ucr)
 	print("\n\tCalculating totals from merged records...")
 	c = Counter()
 	c.writeXLSX()
 	c.printComplete()
-	# Get summaries and new histograms
-	summarize(args.ucr)
 	if args.hist:
-		Histograms()
+		Histograms(c)
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":

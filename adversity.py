@@ -2,16 +2,15 @@
 
 from datetime import datetime
 from manifest import *
-from record import UPDBRecord, getRent
+from record import *
 from windowspath import *
 
 class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = ["AgeMaD", "MaAgeBr", "MaD<10", "MAlive18", "TeenMa", "AgePaD", "PaAgeBr", 
-					"PaD<10", "PAlive18", "SibDeath","MergedSEI", "MergedNP", "LowSES", 
-					"LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore"]
+		self.newcol = ["AgeMaD", "MaAgeBr", "MAlive18", "AgePaD", "PaAgeBr", "PAlive18", "MergedSEI", "MergedNP", 
+					"MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore"]
 		self.headers = {}
 		self.income = {}
 		self.caseout = ("{}updbCases.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
