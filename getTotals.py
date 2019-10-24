@@ -16,11 +16,11 @@ class Total():
 		self.control = []
 
 	def getNA(self):
-		# Returns number of NAs by ER status
+		# Returns % of NAs by ER status
 		ret = []
-		ret.append(self.pos.count(-1))
-		ret.append(self.neg.count(-1))
-		ret.append(self.control.count(-1))
+		ret.append((self.pos.count(-1)/len(self.pos)*100))
+		ret.append((self.neg.count(-1)/len(self.neg)*100))
+		ret.append((self.control.count(-1)/len(self.control)*100))
 		return ret 
 
 	def add(self, status, val):

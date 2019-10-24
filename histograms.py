@@ -5,7 +5,7 @@ from datetime import datetime
 from getTotals import Counter
 from manifest import *
 from matplotlib import pyplot, ticker
-from numpy import ones_like
+from numpy import ones_like, arange
 import os
 from windowspath import *
 
@@ -26,7 +26,7 @@ class Histograms():
 		self.outdir = checkDir(setPath() + "histograms", True)
 		self.axes = {}
 		self.data = counter
-		self.na = {}
+		self.na = {"p": [], "n": [], "c": []}
 		self.__setAxes__()
 		self.__plotHistograms__()
 
@@ -97,13 +97,35 @@ class Histograms():
 		ax.legend(loc=self.legend)
 		fig.savefig(("{}{}.{}.svg").format(self.outdir, k, datetime.now().strftime("%Y-%m-%d")))
 
+	def __plotNA__(self):
+		# Plots barplot of NA values by field and NA Status
+		print("\tPlotting NAs...")
+		width = 0.3
+		ticks = arange(len(self.data.columns))
+		fig, ax = pyplot.subplots(nrows = 1, ncols = 1)
+		# Plot each field
+		ax.bar(ticks-width, self.na["p"], width, label = self.label[0])
+		ax.bar(ticks, self.na["n"], width, label = self.label[1])
+		ax.bar(ticks+width, self.na["c"], width, label = self.label[2])
+		# Add labels and tick marks
+		ax.set(title = "Percent NAs", ylabel = "Percent Frequency")
+		ax.set_xticks(ticks)
+		ax.set_xticklabels(self.data.columns, rotation='vertical')
+		ax.yaxis.set_major_formatter(ticker.PercentFormatter())
+		ax.legend(loc=self.legend)
+		fig.subplots_adjust(bottom=0.4)
+		fig.savefig(("{}NApercents.{}.svg").format(self.outdir, datetime.now().strftime("%Y-%m-%d")))
+
 	def __plotHistograms__(self):
 		# Plots histograms by related fields
 		for k in self.data.columns:
-			self.na[k] = self.data.totals[k].getNA()
+			nas = self.data.totals[k].getNA()
+			self.na["p"].append(nas[0])
+			self.na["n"].append(nas[1])
+			self.na["c"].append(nas[2])
 			self.__trimLists__(k)
 			self.__plot__(k)
-		#self.__plotNA__()
+		self.__plotNA__()
 
 def main():
 	start = datetime.now()

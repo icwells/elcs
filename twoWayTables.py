@@ -109,7 +109,7 @@ class Tables():
 def main():
 	start = datetime.now()
 	print("\n\tCreating two-way tables...")
-	t = Tables("NumSibsDieChildhood", "NumSibs", 30)
+	t = Tables("SibsDieKnown", "NumSibs", 30)
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
