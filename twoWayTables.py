@@ -8,11 +8,12 @@ from windowspath import *
 
 class Tables():
 
-	def __init__(self, x, y, mx):
+	def __init__(self, x, y, mx, upper=None):
 		self.infile = getMergedFile()
 		self.outfile = ("{}adversityTables.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.x = x
 		self.y = y
+		self.upper = upper
 		self.max = mx
 		self.d = ""
 		self.head = {}
@@ -36,6 +37,10 @@ class Tables():
 		print("\tWriting table to file...")
 		m = "w"
 		with ExcelWriter(self.outfile, mode = m) as writer:
+			if self.upper is not None:
+				c = list(self.df.columns)
+				c[-1] = str(c[-1]) + "+"
+				self.df.columns = c
 			self.df.to_excel(writer, sheet_name = self.x)
 
 	def __getValue__(self, v):
@@ -64,7 +69,11 @@ class Tables():
 						if x >= 0 and y >= 0:
 							if x > y or y > self.max:
 								# Record illogical values
-								self.illogical.append(s)
+								self.illogical.append([s[0], str(x), str(y)])
+							elif self.upper is not None and y > self.upper:
+								# Record and compress
+								self.illogical.append([s[0], str(x), str(y)])
+								self.df.loc[x, self.upper] += 1
 							else:
 								self.df.loc[x, y] += 1
 				else:
@@ -90,14 +99,18 @@ class Tables():
 						try:
 							y = int(s[self.head[self.y]])
 							if y <= self.max:
-								col.add(y)
+								if self.upper is not None and y > self.upper:
+									# Compress values between upper and max value into one column
+									col.add(self.upper)
+								else:
+									col.add(y)
 						except ValueError:
 							pass
 				else:
 					self.d = getDelim(line)
 					header = line.split(self.d)
 					self.head = setHeader(header)
-					self.illogical.append(header)
+					self.illogical.append([header[0], self.x, self.y])
 					first = False
 		col = list(col)
 		col.sort()
@@ -109,7 +122,7 @@ class Tables():
 def main():
 	start = datetime.now()
 	print("\n\tCreating two-way tables...")
-	t = Tables("SibsDieKnown", "NumSibs", 30)
+	t = Tables("SibsDieKnown", "NumSibs", 30, 18)
 	print(("\tTotal runtime: {}\n").format(datetime.now() - start))
 
 if __name__ == "__main__":
