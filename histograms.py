@@ -11,13 +11,11 @@ from windowspath import *
 
 class PlotAttributes():
 
-	def __init__(self, label, xmin=0, xmax=None, ymin=0, ymax=None):
+	def __init__(self, label, xmin=0, xmax=None):
 		# Stores attributes for specific plots
 		self.label = label
 		self.xmin = xmin
-		self.xmax = xmax
-		self.ymin = ymin
-		self.ymax = ymax		
+		self.xmax = xmax		
 
 class Histograms():
 
@@ -28,6 +26,7 @@ class Histograms():
 		self.outdir = checkDir(setPath() + "histograms", True)
 		self.axes = {}
 		self.data = counter
+		self.na = {}
 		self.__setAxes__()
 		self.__plotHistograms__()
 
@@ -41,14 +40,14 @@ class Histograms():
 		self.axes["MaAgeBr"] = PlotAttributes(a, xmin=10, xmax=55)
 		self.axes["AgePaD"] = PlotAttributes(a, xmax=85)
 		self.axes["PaAgeBr"] = PlotAttributes(a, xmin=10, xmax=70)
-		self.axes["NumSibsDieChildhood"] = PlotAttributes("Number of Siblings", xmax=13)
+		self.axes["SibsDieKnown"] = PlotAttributes("Number of Siblings", xmax=13)
 		self.axes["MergedSEI"] = PlotAttributes(sei, xmax=100)
 		self.axes["MergedNP"] = PlotAttributes(np, xmax=1000)
 		self.axes["EgoCenIncome"] = PlotAttributes(i)
 		self.axes["MaCenIncome_New"] = PlotAttributes(i)
 		self.axes["PaCenIncome_New"] = PlotAttributes(i)
 		self.axes["HomeValue_Head1940"] = PlotAttributes("1940 Home Value (US dollars)")
-		self.axes["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)", xmin=1)
+		self.axes["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
 
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent
@@ -61,7 +60,7 @@ class Histograms():
 	def __trimList__(self, k, l):
 		# Trims given list an returns
 		l.sort()
-		if self.axes[k].xmin != 0:
+		if self.axes[k].xmin is not None:
 			for i in range(len(l)):
 				if l[i] >= self.axes[k].xmin:
 					l = l[i:]
@@ -95,16 +94,16 @@ class Histograms():
 		ax.set(title = k, ylabel = "Percent Frequency", xlabel = self.axes[k].label)
 		ax.set_xlim(0, self.axes[k].xmax)
 		ax.yaxis.set_major_formatter(ticker.PercentFormatter())
-		#if self.axes[k].ymin != 0 or self.axes[k].ymax is not None:
-		#	ax.set_ylim(self.axes[k].ymin, self.axes[k].ymax)
 		ax.legend(loc=self.legend)
 		fig.savefig(("{}{}.{}.svg").format(self.outdir, k, datetime.now().strftime("%Y-%m-%d")))
 
 	def __plotHistograms__(self):
 		# Plots histograms by related fields
 		for k in self.data.columns:
-			self.data.totals[k].trim(self.axes[k].xmax, self.axes[k].xmin)
+			self.na[k] = self.data.totals[k].getNA()
+			self.__trimLists__(k)
 			self.__plot__(k)
+		#self.__plotNA__()
 
 def main():
 	start = datetime.now()

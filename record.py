@@ -126,7 +126,9 @@ class UPDBRecord():
 						ret = 1
 			except ValueError:
 					pass
-		return ret		
+		return ret
+
+#-----------------------------------------------------------------------------
 
 	def __setIncome__(self, h, income, line):
 		# Finds single income value for family
@@ -160,6 +162,17 @@ class UPDBRecord():
 		self.__setIncome__(h, income, line)
 		self.__setHomeVal__(h, income, line)
 		self.d[">5Sibs"] = self.__getComparison__(h["NumSibs"], line, greater=5)
+
+	def __sibsDieKnown__(self, h, line):
+		# Zero-fills number of siblings died column and stores sibling death point
+		self.d["SibsDieKnown"] = self.__getCol__(h["NumSibsDieChildhood"], line)
+		if self.d["SibsDieKnown"] < 1:
+			if self.__getCol__(h["NumSibs"], line) >= 0:
+		 		self.d["SibsDieKnown"] = 0
+		if self.d["SibsDieKnown"] > 0:
+			self.d["SibDeath"] = 1
+		elif self.d["SibsDieKnown"] == 0:
+			self.d["SibDeath"] = 0
 
 	def __setMaAges__(self, h, line, birth, mb):
 		# Sets values relating to mother's age
@@ -203,4 +216,4 @@ class UPDBRecord():
 				self.__setMaAges__(h, line, birth, mb)
 			if pb > 0:
 				self.__setPaAges__(h, line, birth, pb)
-		self.d["SibDeath"] = self.__getComparison__(h["NumSibsDieChildhood"], line, greater=1)
+		self.__sibsDieKnown__(h, line)
