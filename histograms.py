@@ -15,7 +15,29 @@ class PlotAttributes():
 		# Stores attributes for specific plots
 		self.label = label
 		self.xmin = xmin
-		self.xmax = xmax		
+		self.xmax = xmax
+
+def setAxes(allLabels=True):
+	# Store unique axes data for each field in dict
+	ret = {}
+	a = "Age (years)"
+	np = "Nam Powers Score"
+	sei = "Socio-Economic Index"
+	i = "Income (US dollars)"
+	ret["AgeMaD"] = PlotAttributes(a, xmax=85)
+	ret["MaAgeBr"] = PlotAttributes(a, xmin=10, xmax=55)
+	ret["AgePaD"] = PlotAttributes(a, xmax=85)
+	ret["PaAgeBr"] = PlotAttributes(a, xmin=10, xmax=70)
+	ret["SibsDieKnown"] = PlotAttributes("Number of Siblings", xmax=13)
+	ret["MergedSEI"] = PlotAttributes(sei, xmax=100)
+	ret["MergedNP"] = PlotAttributes(np, xmax=1000)
+	if allLabels:
+		ret["EgoCenIncome"] = PlotAttributes(i)
+		ret["MaCenIncome_New"] = PlotAttributes(i)
+		ret["PaCenIncome_New"] = PlotAttributes(i)
+		ret["HomeValue_Head1940"] = PlotAttributes("1940 Home Value (US dollars)")
+		ret["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
+	return ret	
 
 class Histograms():
 
@@ -24,30 +46,10 @@ class Histograms():
 		self.label = ["ER+", "ER-", "Control"]
 		self.legend = "upper right"
 		self.outdir = checkDir(setPath() + "histograms", True)
-		self.axes = {}
+		self.axes = setAxes(True)
 		self.data = counter
 		self.na = {"p": [], "n": [], "c": []}
-		self.__setAxes__()
 		self.__plotHistograms__()
-
-	def __setAxes__(self):
-		# Store unique axes data for each field in dict
-		a = "Age (years)"
-		np = "Nam Powers Score"
-		sei = "Socio-Economic Index"
-		i = "Income (US dollars)"
-		self.axes["AgeMaD"] = PlotAttributes(a, xmax=85)
-		self.axes["MaAgeBr"] = PlotAttributes(a, xmin=10, xmax=55)
-		self.axes["AgePaD"] = PlotAttributes(a, xmax=85)
-		self.axes["PaAgeBr"] = PlotAttributes(a, xmin=10, xmax=70)
-		self.axes["SibsDieKnown"] = PlotAttributes("Number of Siblings", xmax=13)
-		self.axes["MergedSEI"] = PlotAttributes(sei, xmax=100)
-		self.axes["MergedNP"] = PlotAttributes(np, xmax=1000)
-		self.axes["EgoCenIncome"] = PlotAttributes(i)
-		self.axes["MaCenIncome_New"] = PlotAttributes(i)
-		self.axes["PaCenIncome_New"] = PlotAttributes(i)
-		self.axes["HomeValue_Head1940"] = PlotAttributes("1940 Home Value (US dollars)")
-		self.axes["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
 
 	def __setWeights__(self, k):
 		# Returns list of weights to plot by percent

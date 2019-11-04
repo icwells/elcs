@@ -54,11 +54,20 @@ class UPDBRecord():
 			ret += 1
 		ret += inc
 		return str(ret)
+
+	def __checkLimits__(self, k, l):
+		# Filters out illogical values
+		if self.d[k] < l.xmin:
+			self.d[k] = -1
+		if l.xmax is not None and self.d[k] > l.xmax:
+			self.d[k] = -1
 	
-	def toList(self):
+	def toList(self, limits):
 		# Returns stored values as list of strings
 		ret = []
 		for k in self.d.keys():
+			if k in limits.keys():
+				self.__checkLimits__(k, limits[k])
 			ret.append(str(self.d[k]))
 		ret.append(self.__setScore__())
 		return ret
@@ -165,10 +174,13 @@ class UPDBRecord():
 
 	def __sibsDieKnown__(self, h, line):
 		# Zero-fills number of siblings died column and stores sibling death point
+		sibs = self.__getCol__(h["NumSibs"], line)
 		self.d["SibsDieKnown"] = self.__getCol__(h["NumSibsDieChildhood"], line)
-		if self.d["SibsDieKnown"] < 1:
-			if self.__getCol__(h["NumSibs"], line) >= 0:
-		 		self.d["SibsDieKnown"] = 0
+		if sibs > 30 or self.d["SibsDieKnown"] > sibs:
+			self.d["SibsDieKnown"] = -1
+		elif self.d["SibsDieKnown"] < 1 and sibs >= 0:
+	 		self.d["SibsDieKnown"] = 0
+		# Record whether or not any siblings died
 		if self.d["SibsDieKnown"] > 0:
 			self.d["SibDeath"] = 1
 		elif self.d["SibsDieKnown"] == 0:

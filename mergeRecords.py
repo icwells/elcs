@@ -138,7 +138,7 @@ class DatabaseMerger():
 		tag = "0"
 		blank = []
 		for i in range(len(self.headers["ucr"])-1):
-			blank.append("")
+			blank.append(".")
 		blank.append(tag)
 		res = list(self.case.values())
 		for k in self.control.keys():

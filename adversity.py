@@ -1,6 +1,7 @@
 '''Adds UPDB columns for measures of adversity'''
 
 from datetime import datetime
+from histograms import setAxes
 from manifest import *
 from record import *
 from windowspath import *
@@ -13,6 +14,7 @@ class Adversity():
 					"MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore"]
 		self.headers = {}
 		self.income = {}
+		self.limits = setAxes(False)
 		self.caseout = ("{}updbCases.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.controlout = ("{}updbControl.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.case = self.__setCases__("case")
@@ -88,7 +90,7 @@ class Adversity():
 		# Returns list with parental dates added
 		for idx, i in enumerate(l):
 			rec = UPDBRecord(self.headers[k], self.newcol, self.income, i)
-			l[idx].extend(rec.toList())
+			l[idx].extend(rec.toList(self.limits))
 		return l
 
 	def getAdversityScores(self):
