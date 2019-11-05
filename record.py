@@ -43,31 +43,27 @@ class UPDBRecord():
 	def __setScore__(self):
 		# Returns score as string
 		ret = 0
-		inc = 0
+		# Isolate income scores first to evaluate numsibs
+		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
+			if self.d[k] == 1:
+				ret += 1
+		if self.d[">5Sibs"] == 1 and ret > 0:
+			ret += 1
 		for k in ["MaD<10", "TeenMa", "PaD<10", "SibDeath"]:
 			if self.d[k] == 1:
 				ret += 1
-		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
-			if self.d[k] == 1:
-				inc += 1
-		if self.d[">5Sibs"] == 1 and inc > 0:
-			ret += 1
-		ret += inc
 		return str(ret)
 
-	def __checkLimits__(self, k, l):
-		# Filters out illogical values
-		if self.d[k] < l.xmin:
-			self.d[k] = -1
-		if l.xmax is not None and self.d[k] > l.xmax:
-			self.d[k] = -1
-	
 	def toList(self, limits):
 		# Returns stored values as list of strings
 		ret = []
 		for k in self.d.keys():
 			if k in limits.keys():
-				self.__checkLimits__(k, limits[k])
+				# Replace illogical values with -1
+				if l.xmax is not None and self.d[k] > l.xmax:
+					self.d[k] = -1
+				elif self.d[k] < l.xmin:
+					self.d[k] = -1
 			ret.append(str(self.d[k]))
 		ret.append(self.__setScore__())
 		return ret
