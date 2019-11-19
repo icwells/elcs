@@ -64,6 +64,7 @@ class Adversity():
 		with open(self.infiles[k], "r") as f:
 			for line in f:
 				# Replace whitespace characters to retain spacing
+				line = line.replace(",", " ")
 				line = line.replace("\t", ",")
 				line = line.strip()
 				if first == False:

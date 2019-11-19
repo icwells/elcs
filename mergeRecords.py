@@ -18,6 +18,14 @@ class DatabaseMerger():
 		self.caseids = set()
 		self.controlids = set()
 
+	def __correctPersonID__(self, h):
+		# Standardizes the personid column
+		k = "PersonID"
+		if k in h.keys():
+			h[k.lower()] = h[k]
+			del h[k]
+		return h		 
+
 	def __setCases__(self, k):
 		# Reads dict of case/control records
 		first = True
@@ -25,13 +33,15 @@ class DatabaseMerger():
 		print(("\tReading {} file...").format(k))
 		with open(self.infiles[k], "r") as f:
 			for line in f:
+				line = line.replace(",", " ")
+				line = line.replace("\t", ",")
 				line = line.strip()
 				if first == False:
 					s = line.split(d)
 					ret[s[h["personid"]]] = s
 				else:
 					d = getDelim(line)
-					h = setHeader(line.split(d))
+					h = self.__correctPersonID__(setHeader(line.split(d)))
 					# Store header for later
 					self.headers[k] = h
 					first = False
@@ -50,7 +60,7 @@ class DatabaseMerger():
 					self.controlids.add(s[h["controlId"]])
 				else:
 					d = getDelim(line)
-					h = setHeader(line.split(d))
+					h = self.__correctPersonID__(setHeader(line.split(d)))
 					first = False
 
 #-------------------------------ID Comparison---------------------------------

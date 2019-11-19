@@ -44,16 +44,23 @@ class UPDBRecord():
 	def __setScore__(self):
 		# Returns score as string
 		ret = 0
+		d := 0
 		# Isolate income scores first to evaluate numsibs
 		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
-			if self.d[k] == 1:
+			if self.d[k] >= 0:
+				d += 1
+				if self.d[k] == 1:
+					ret += 1
+		if self.d[">5Sibs"] >= 0:
+			d += 1
+			if self.d[">5Sibs"] == 1 and ret > 0:
 				ret += 1
-		if self.d[">5Sibs"] == 1 and ret > 0:
-			ret += 1
 		for k in ["MaD<10", "TeenMa", "PaD<10", "SibDeath"]:
-			if self.d[k] == 1:
-				ret += 1
-		return [str(ret), "{:.2%}".format(ret/len(self.d.keys()))]
+			if self.d[k] >= 0:
+				d += 1
+				if self.d[k] == 1:
+					ret += 1
+		return [str(ret), "{:.2%}".format(ret/d)]
 
 	def __isSet__(self):
 		# Returns false if all values are NA
@@ -208,7 +215,7 @@ class UPDBRecord():
 		elif self.d["AgeMaD"] >= 18:
 			self.d["MAlive18"] = 1
 		else:
-			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastLivingDate"], line, birth)
+			self.d["MAlive18"] = self.__aliveAt18__(h["MalastLivingDate"], line, birth)
 		if 0 <= self.d["MaAgeBr"] <= 18:
 			# Set 1 for teenage mother
 			self.d["TeenMa"] = 1
@@ -225,7 +232,7 @@ class UPDBRecord():
 		elif self.d["AgePaD"] >= 18:
 			self.d["PAlive18"] = 1
 		else:
-			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastLivingDate"], line, birth)
+			self.d["PAlive18"] = self.__aliveAt18__(h["PalastLivingDate"], line, birth)
 
 	def __setAges__(self, h, line):
 		# Stores age-based calculations
