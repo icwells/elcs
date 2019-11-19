@@ -30,14 +30,15 @@ def getMax(x, y, line):
 class UPDBRecord():
 
 	def __init__(self, h, columns, income, line):
+		self.start = 1904
 		self.d = OrderedDict()
 		self.__setDict__(columns)
 		self.__setAges__(h, line)
 		self.__setIncomeMeasures__(h, income, line)
 
 	def __setDict__(self, columns):
-		# Initialized dict by column name (skip adversity score column)
-		for k in columns[:-1]:
+		# Initialized dict by column name (skip adversity score columns)
+		for k in columns[:-2]:
 			self.d[k] = -1
 
 	def __setScore__(self):
@@ -52,20 +53,33 @@ class UPDBRecord():
 		for k in ["MaD<10", "TeenMa", "PaD<10", "SibDeath"]:
 			if self.d[k] == 1:
 				ret += 1
-		return str(ret)
+		return [str(ret), "{:.2%}".format(ret/len(self.d.keys()))]
+
+	def __isSet__(self):
+		# Returns false if all values are NA
+		for k in self.d.keys():
+			if self.d[k] > -1:
+				return True
+		return False
 
 	def toList(self, limits):
 		# Returns stored values as list of strings
-		ret = []
-		for k in self.d.keys():
-			if k in limits.keys():
-				# Replace illogical values with -1
-				if l.xmax is not None and self.d[k] > l.xmax:
-					self.d[k] = -1
-				elif self.d[k] < l.xmin:
-					self.d[k] = -1
-			ret.append(str(self.d[k]))
-		ret.append(self.__setScore__())
+		if self.__isSet__():
+			ret = []
+			for k in self.d.keys():
+				if k in limits.keys():
+					# Replace illogical values with -1
+					if limits[k].xmax is not None and self.d[k] > limits[k].xmax:
+						self.d[k] = -1
+					elif self.d[k] < limits[k].xmin:
+						self.d[k] = -1
+				ret.append(str(self.d[k]))
+			ret.extend(self.__setScore__())
+		else:
+			# Return list of NAs
+			ret = ["-1", "-1"]
+			for k in self.d.keys():
+				ret.append("-1")
 		return ret
 
 #-----------------------------------------------------------------------------
@@ -194,7 +208,7 @@ class UPDBRecord():
 		elif self.d["AgeMaD"] >= 18:
 			self.d["MAlive18"] = 1
 		else:
-			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastResUtahDate"], line, birth)
+			self.d["MAlive18"] = self.__aliveAt18__(h["MaLastLivingDate"], line, birth)
 		if 0 <= self.d["MaAgeBr"] <= 18:
 			# Set 1 for teenage mother
 			self.d["TeenMa"] = 1
@@ -211,17 +225,19 @@ class UPDBRecord():
 		elif self.d["AgePaD"] >= 18:
 			self.d["PAlive18"] = 1
 		else:
-			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastResUtahDate"], line, birth)
+			self.d["PAlive18"] = self.__aliveAt18__(h["PaLastLivingDate"], line, birth)
 
 	def __setAges__(self, h, line):
 		# Stores age-based calculations
 		# Get self, mother's, and father's birth year
 		birth = self.__getCol__(h["byr"], line)
-		mb = self.__getCol__(h["MaByr"], line)
-		pb = self.__getCol__(h["PaByr"], line)
-		if birth > 0:
-			if mb > 0:
-				self.__setMaAges__(h, line, birth, mb)
-			if pb > 0:
-				self.__setPaAges__(h, line, birth, pb)
-		self.__sibsDieKnown__(h, line)
+		if birth > self.start:
+			# Ignore records from before 1904
+			mb = self.__getCol__(h["MaByr"], line)
+			pb = self.__getCol__(h["PaByr"], line)
+			if birth > 0:
+				if mb > 0:
+					self.__setMaAges__(h, line, birth, mb)
+				if pb > 0:
+					self.__setPaAges__(h, line, birth, pb)
+			self.__sibsDieKnown__(h, line)

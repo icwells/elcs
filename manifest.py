@@ -32,12 +32,12 @@ def getMergedFile():
 def getInfiles(orig = True):
 	# Returns dict of input files
 	infiles = {}
-	infiles["casecontrol"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_CaseControl_New.csv"
+	infiles["casecontrol"] = "Z:/NewDataFromDavid/20191111David_Ken_BreastCancer_CaseControl_New.csv"
 	if orig == True:
 		# Read in original source data
 		infiles["ucr"] = "Z:/u0918416/Amycasedat_051916.csv"
-		infiles["case"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_20191018.txt"
-		infiles["control"] = "Z:/NewDataFromDavid/David_Ken_BreastCancer_Main_Ctrl_20191018.txt"
+		infiles["case"] = "Z:/NewDataFromDavid/20191111/David_Ken_BreastCancer_Main_20191107.txt"
+		infiles["control"] = "Z:/NewDataFromDavid/20191111/David_Ken_BreastCancer_Main_Ctrl_20191107.txt"
 		for k in infiles.keys():
 			checkFile(infiles[k])
 	else:
