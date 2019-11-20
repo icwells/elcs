@@ -41,10 +41,23 @@ class UPDBRecord():
 		for k in columns[:-2]:
 			self.d[k] = -1
 
+	def __setPercent__(self, score):
+		# Returns formatted percent score
+		ret = 0
+		if score > 0:
+			d = 0 
+			for k in self.d.keys():
+				if self.d[k] >= 0:
+					d += 1
+			if d > 0:
+				ret = score/d
+		return "{:.2%}".format(ret)
+		
+
 	def __setScore__(self):
 		# Returns score as string
 		ret = 0
-		d := 0
+		d = 0
 		# Isolate income scores first to evaluate numsibs
 		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
 			if self.d[k] >= 0:
@@ -60,7 +73,7 @@ class UPDBRecord():
 				d += 1
 				if self.d[k] == 1:
 					ret += 1
-		return [str(ret), "{:.2%}".format(ret/d)]
+		return [str(ret), self.__setPercent__(ret)]
 
 	def __isSet__(self):
 		# Returns false if all values are NA

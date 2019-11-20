@@ -33,8 +33,6 @@ class DatabaseMerger():
 		print(("\tReading {} file...").format(k))
 		with open(self.infiles[k], "r") as f:
 			for line in f:
-				line = line.replace(",", " ")
-				line = line.replace("\t", ",")
 				line = line.strip()
 				if first == False:
 					s = line.split(d)
