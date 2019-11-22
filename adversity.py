@@ -24,24 +24,22 @@ class Adversity():
 	def __getTotals__(self, key, l, inc):
 		# Totals target columns from given list
 		for i in l:
-			for k in inc.keys():
-				# Isolate each target value
-				if k == "MergedSEI":
-					v = getMax(self.headers[key]["MaCenSEI"], self.headers[key]["PaCenSEI"], i)
-					if v >= 0:
-						inc[k].append(v)
-				elif k == "MergedNP":
-					v = getMax(self.headers[key]["MaCenNamPow"], self.headers[key]["PaCenNamPow"], i)
-					if v >= 0:
-						inc[k].append(v)
-				else:
-					idx = self.headers[key][k]
-					if idx < len(i):
-						try:
-							v = float(i[idx].strip())
+			# Isolate each target value
+			sei = getMax(self.headers[key]["MaCenSEI"], self.headers[key]["PaCenSEI"], i)
+			if sei >= 0:
+				inc["MergedSEI"].append(sei)
+			np = getMax(self.headers[key]["MaCenNamPow"], self.headers[key]["PaCenNamPow"], i)
+			if np >= 0:
+				inc["MergedNP"].append(np)
+			for k in ["EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New", "HomeValue_Head1940"]:
+				idx = self.headers[key][k]
+				if idx < len(i):
+					try:
+						v = float(i[idx].strip())
+						if v > 0.0:
 							inc[k].append(v)
-						except ValueError:
-							pass
+					except ValueError:
+						pass
 		return inc
 
 	def __setScores__(self):
@@ -64,8 +62,6 @@ class Adversity():
 		with open(self.infiles[k], "r") as f:
 			for line in f:
 				# Replace whitespace characters to retain spacing
-				line = line.replace(",", " ")
-				line = line.replace("\t", ",")
 				line = line.strip()
 				if first == False:
 					ret.append(line.split(d))

@@ -36,8 +36,8 @@ def getInfiles(orig = True):
 	if orig == True:
 		# Read in original source data
 		infiles["ucr"] = "Z:/u0918416/Amycasedat_051916.csv"
-		infiles["case"] = "Z:/NewDataFromDavid/20191111/David_Amy_BreastCancer_Main_20191107.txt"
-		infiles["control"] = "Z:/NewDataFromDavid/20191111/David_Amy_BreastCancer_Main_Ctrl_20191107.txt"
+		infiles["case"] = "Z:/NewDataFromDavid/20191121/David_Amy_BreastCancer_Main_20191121.csv"
+		infiles["control"] = "Z:/NewDataFromDavid/20191121/David_Amy_BreastCancer_Main_Ctrl_20191121.csv"
 		for k in infiles.keys():
 			checkFile(infiles[k])
 	else:

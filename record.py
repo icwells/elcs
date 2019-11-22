@@ -174,19 +174,21 @@ class UPDBRecord():
 		eci = self.__getComparison__(h["EgoCenIncome"], line, less=income["EgoCenIncome"])
 		mci = self.__getComparison__(h["MaCenIncome_New"], line, less=income["MaCenIncome_New"])
 		pci = self.__getComparison__(h["PaCenIncome_New"], line, less=income["PaCenIncome_New"])
-		if eci == 1 or mci == 1 or pci == 1: 
-			self.d["LowIncome"] = 1
-		elif eci == 0 or mci == 0 or pci == 0: 
-			self.d["LowIncome"] = 0
-
+		l = [eci, mci, pci]
+		for i in l:
+			if i == 1:
+				self.d["LowIncome"] = 1
+				break
+			elif i == 0: 
+				self.d["LowIncome"] = 0
 
 	def __setHomeVal__(self, h, income, line):
 		# Sets vlaues for low rent/home value
 		self.d["LowHomeVal"] = -1
 		own = self.__getCol__(h["OWNERSHP_ToHEAD"], line)
-		if own == 1:
+		if own == 10 or own == 1:
 			self.d["LowHomeVal"] = self.__getComparison__(h["HomeValue_Head1940"], line, less=income["HomeValue_Head1940"])
-		elif own == 2:
+		elif own == 20 or own == 2:
 			self.d["LowHomeVal"] = 1
 
 	def __setIncomeMeasures__(self, h, income, line):
@@ -229,9 +231,11 @@ class UPDBRecord():
 			self.d["MAlive18"] = 1
 		else:
 			self.d["MAlive18"] = self.__aliveAt18__(h["MalastLivingDate"], line, birth)
-		if 0 <= self.d["MaAgeBr"] <= 18:
-			# Set 1 for teenage mother
-			self.d["TeenMa"] = 1
+		if self.d["MaAgeBr"] > 0: 
+			self.d["TeenMa"] = 0
+			if self.d["MaAgeBr"] <= 18:
+				# Set 1 for teenage mother
+				self.d["TeenMa"] = 1
 
 	def __setPaAges__(self, h, line, birth, pb):
 		# Sets values relating to father's age
@@ -255,9 +259,8 @@ class UPDBRecord():
 			# Ignore records from before 1904
 			mb = self.__getCol__(h["MaByr"], line)
 			pb = self.__getCol__(h["PaByr"], line)
-			if birth > 0:
-				if mb > 0:
-					self.__setMaAges__(h, line, birth, mb)
-				if pb > 0:
-					self.__setPaAges__(h, line, birth, pb)
+			if mb > 0:
+				self.__setMaAges__(h, line, birth, mb)
+			if pb > 0:
+				self.__setPaAges__(h, line, birth, pb)
 			self.__sibsDieKnown__(h, line)
