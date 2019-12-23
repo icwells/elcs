@@ -10,8 +10,8 @@ class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = ["AgeMaD", "MaAgeBr", "MAlive18", "AgePaD", "PaAgeBr", "PAlive18", "SibsDieKnown", "MergedSEI", "MergedNP", 
-					"MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score"]
+		self.newcol = ["AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", "AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI",
+						"MergedNP", "MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score"]
 		self.headers = {}
 		self.income = {}
 		self.limits = setAxes(False)
@@ -19,6 +19,7 @@ class Adversity():
 		self.controlout = ("{}updbControl.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.case = self.__setCases__("case")
 		self.control = self.__setCases__("control")
+		self.diagdate = self.__setDiagnosisDates__()
 		self.__setScores__()
 
 	def __getTotals__(self, key, l, inc):
@@ -54,6 +55,36 @@ class Adversity():
 			idx = int((len(inc[k])-1)*p)
 			self.income[k] = inc[k][idx]
 
+	def __formatDiagDate__(self, date):
+		# Returns formatted year or -1
+		ret = -1
+		date = date.strip()
+		try:
+			d = int(date)
+			if d > 0:
+				ret = d
+		except ValueError:
+			pass
+		return ret
+
+	def __setDiagnosisDates__(self):
+		# Stores date of diagnosis from ucr file
+		ret = {}
+		first = True
+		print("\tReading dates from ucr file...")
+		with open(self.infiles["ucr"], "r") as f:
+			for line in f:
+				line = line.strip()
+				if first == False:
+					s = line.split(d)
+					k = s[h["personid"]].strip()
+					ret[k] = self.__formatDiagDate__(s[h["DATE_OF_DIAGNOSIS_YYYY"]])
+				else:
+					d = getDelim(line)
+					h = setHeader(line.split(d))
+					first = False
+		return ret
+
 	def __setCases__(self, k):
 		# Reads dict of case/control records
 		first = True
@@ -85,8 +116,13 @@ class Adversity():
 
 	def __setMeasures__(self, l, k):
 		# Returns list with parental dates added
+		h = self.headers[k]
 		for idx, i in enumerate(l):
-			rec = UPDBRecord(self.headers[k], self.newcol, self.income, i)
+			dd = -1
+			pid = i[h["personid"]].strip()
+			if pid in self.diagdate.keys():
+				dd = self.diagdate[pid]
+			rec = UPDBRecord(h, self.newcol, self.income, i, dd)
 			l[idx].extend(rec.toList(self.limits))
 		return l
 

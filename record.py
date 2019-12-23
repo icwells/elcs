@@ -29,8 +29,10 @@ def getMax(x, y, line):
 
 class UPDBRecord():
 
-	def __init__(self, h, columns, income, line):
+	def __init__(self, h, columns, income, line, diagdate):
 		self.start = 1904
+		self.diagdate = diagdate
+		self.birth = -1
 		self.d = OrderedDict()
 		self.__setDict__(columns)
 		self.__setAges__(h, line)
@@ -117,7 +119,7 @@ class UPDBRecord():
 		return ret
 
 	def __lessThanTen__(self, v):
-		# Returns 1 if <= 10 when parent died
+		# Returns 1 if <= 10
 		if 0 <= v <= 10:
 			return 1
 		elif v >= 0:
@@ -126,7 +128,7 @@ class UPDBRecord():
 			return -1
 
 	def __setAge__(self, p, e, filt = False):
-		# Returns string of p-e
+		# Returns p-e
 		ret = p-e
 		if filt and 13 <= ret <= 55:
 			return ret
@@ -147,8 +149,17 @@ class UPDBRecord():
 					pass
 		return ret
 
-	def __aliveAt18__(self, idx, line, birth):
-		# Returns -1/0/1 if parent alive when ego was 18
+	def __aliveAt__(self, val, year, target):
+		# Returns -1/0/1 if parent alive when val - year >= target
+		ret = -1
+		if val > year:
+			ret = 0
+			if val - year >= target:
+				ret = 1
+		return ret
+
+	def __lastLiving__(self, idx, line):
+		# Returns formatted last living date
 		ret = -1
 		val = line[idx].strip()
 		if val is not None:
@@ -160,9 +171,7 @@ class UPDBRecord():
 			try:
 				v = int(val)
 				if v >= 0:
-					ret = 0
-					if v - birth >= 18:
-						ret = 1
+					ret = v
 			except ValueError:
 					pass
 		return ret
@@ -218,49 +227,40 @@ class UPDBRecord():
 		elif self.d["SibsDieKnown"] == 0:
 			self.d["SibDeath"] = 0
 
-	def __setMaAges__(self, h, line, birth, mb):
-		# Sets values relating to mother's age
-		md = self.__getCol__(h["MaDyr"], line)
-		if md > 0:
-			self.d["AgeMaD"] = self.__setAge__(md, birth)
-		self.d["MaAgeBr"] = self.__setAge__(birth, mb, True)
-		self.d["MaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["MaD<10"] == 1:
-			self.d["MAlive18"] = 0
-		elif self.d["AgeMaD"] >= 18:
-			self.d["MAlive18"] = 1
-		else:
-			self.d["MAlive18"] = self.__aliveAt18__(h["MalastLivingDate"], line, birth)
-		if self.d["MaAgeBr"] > 0: 
-			self.d["TeenMa"] = 0
-			if self.d["MaAgeBr"] <= 18:
-				# Set 1 for teenage mother
-				self.d["TeenMa"] = 1
-
-	def __setPaAges__(self, h, line, birth, pb):
-		# Sets values relating to father's age
-		pd = self.__getCol__(h["PaDyr"], line)
+	def __setParentalAges__(self, h, k, line, pb):
+		# Sets values relating to parent's age
+		pd = self.__getCol__(h["{}aDyr".format(k)], line)
+		lld = self.__lastLiving__(h["{}alastLivingDate".format(k)], line)
 		if pd > 0:
-			self.d["AgePaD"] = self.__setAge__(pd, birth)
-		self.d["PaAgeBr"] = self.__setAge__(birth, pb, True)	
-		self.d["PaD<10"] = self.__lessThanTen__(self.d["AgeMaD"])
-		if self.d["PaD<10"] == 1:
-			self.d["PAlive18"] = 0
-		elif self.d["AgePaD"] >= 18:
-			self.d["PAlive18"] = 1
+			self.d["Age{}aD".format(k)] = self.__setAge__(pd, self.birth)
+		self.d["{}AliveDiag".format(k)] = self.__aliveAt__(lld, self.diagdate, 0) 
+		self.d["{}aAgeBr".format(k)] = self.__setAge__(self.birth, pb, True)	
+		self.d["{}aD<10".format(k)] = self.__lessThanTen__(self.d["AgeMaD"])
+		if self.d["{}aD<10".format(k)] == 1:
+			self.d["{}Alive18".format(k)] = 0
+		elif self.d["Age{}aD".format(k)] >= 18:
+			self.d["{}Alive18".format(k)] = 1
 		else:
-			self.d["PAlive18"] = self.__aliveAt18__(h["PalastLivingDate"], line, birth)
+			self.d["{}Alive18".format(k)] = self.__aliveAt__(pd, self.birth, 18)
 
 	def __setAges__(self, h, line):
 		# Stores age-based calculations
 		# Get self, mother's, and father's birth year
-		birth = self.__getCol__(h["byr"], line)
-		if birth > self.start:
+		self.birth = self.__getCol__(h["byr"], line)
+		if self.birth > self.start:
 			# Ignore records from before 1904
+			if self.diagdate > self.start:
+				self.d["AgeAtDiagnosis"] = self.__setAge__(self.diagdate, self.birth)
+				self.d["Under10"] = self.__lessThanTen__(self.d["AgeAtDiagnosis"])
 			mb = self.__getCol__(h["MaByr"], line)
 			pb = self.__getCol__(h["PaByr"], line)
 			if mb > 0:
-				self.__setMaAges__(h, line, birth, mb)
+				self.__setParentalAges__(h, "M", line, mb)
+				if self.d["MaAgeBr"] > 0: 
+					self.d["TeenMa"] = 0
+					if self.d["MaAgeBr"] <= 18:
+						# Set 1 for teenage mother
+						self.d["TeenMa"] = 1
 			if pb > 0:
-				self.__setPaAges__(h, line, birth, pb)
+				self.__setParentalAges__(h, "P", line, pb)
 			self.__sibsDieKnown__(h, line)
