@@ -10,10 +10,11 @@ class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = ["AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", "AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI",
+		self.newcol = ["byrBin", "AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", "AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI",
 						"MergedNP", "MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score"]
 		self.headers = {}
 		self.income = {}
+		self.bins = []
 		self.limits = setAxes(False)
 		self.caseout = ("{}updbCases.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.controlout = ("{}updbControl.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
@@ -43,6 +44,15 @@ class Adversity():
 						pass
 		return inc
 
+	def __setBins__(self):
+		# Stores list of birth year decades
+		start = 1888
+		# Add ten to highest birth year to avoid index error
+		stop = 2004
+		while start < stop:
+			self.bins.append(start)
+			start += 10
+
 	def __setScores__(self):
 		# Determines 25% mark for income status measures
 		p = 0.25
@@ -54,6 +64,7 @@ class Adversity():
 			# Get index at 25% the length of list, set value in dict
 			idx = int((len(inc[k])-1)*p)
 			self.income[k] = inc[k][idx]
+		self.__setBins__()
 
 	def __formatDiagDate__(self, date):
 		# Returns formatted year or -1
@@ -114,6 +125,14 @@ class Adversity():
 
 #-----------------------------------------------------------------------------
 
+	def __birthYearBin__(self, birth):
+		# Determines which decade bin birth falls in
+		if birth > 0:
+			for idx, i in enumerate(self.bins):
+				if i <= birth < self.bins[idx+1]:
+					return str(idx + 1)
+		return "-1"
+
 	def __setMeasures__(self, l, k):
 		# Returns list with parental dates added
 		h = self.headers[k]
@@ -123,6 +142,7 @@ class Adversity():
 			if pid in self.diagdate.keys():
 				dd = self.diagdate[pid]
 			rec = UPDBRecord(h, self.newcol, self.income, i, dd)
+			l[idx].append(self.__birthYearBin__(rec.birth))
 			l[idx].extend(rec.toList(self.limits))
 		return l
 
