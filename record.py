@@ -39,8 +39,8 @@ class UPDBRecord():
 		self.__setIncomeMeasures__(h, income, line)
 
 	def __setDict__(self, columns):
-		# Initialized dict by column name (skip adversity score columns)
-		for k in columns[:-2]:
+		# Initialized dict by column name (skip adversity score and byrBin columns)
+		for k in columns[1:-2]:
 			self.d[k] = -1
 
 	def __setPercent__(self, score):
