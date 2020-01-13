@@ -37,6 +37,7 @@ def setAxes(allLabels=True):
 		ret["PaCenIncome_New"] = PlotAttributes(i)
 		ret["HomeValue_Head1940"] = PlotAttributes("1940 Home Value (US dollars)")
 		ret["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
+		ret["byrBin"] = PlotAttributes("Birth Year Decade Bin (1888-1994)")
 	return ret	
 
 class Histograms():
