@@ -84,8 +84,6 @@ class Counter():
 
 	def __parseRow__(self, status, row):
 		# Extracts relevant data from row
-		complete = 1
-		end = 5
 		for idx, k in enumerate(self.columns):
 			try:
 				val = int(row[self.header[k]])
@@ -93,9 +91,8 @@ class Counter():
 				# Record NAs
 				val = -1
 			self.totals[k].add(status, val)
-			if idx < end and val < 0 and not self.__parentAlive__(k, row):
-				complete = 0
-		self.complete[status] += complete
+		if row[self.header["Complete"]] == "1":
+			self.complete[status] += 1
 
 	def __getStatus__(self, row):
 		# Returns ER status from line

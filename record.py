@@ -33,14 +33,15 @@ class UPDBRecord():
 		self.start = 1904
 		self.diagdate = diagdate
 		self.birth = -1
+		self.complete = 0
 		self.d = OrderedDict()
 		self.__setDict__(columns)
 		self.__setAges__(h, line)
 		self.__setIncomeMeasures__(h, income, line)
 
 	def __setDict__(self, columns):
-		# Initialized dict by column name (skip adversity score and byrBin columns)
-		for k in columns[1:-2]:
+		# Initialized dict by column name (skip adversity score, byrBin, and 'complete' columns)
+		for k in columns[1:-3]:
 			self.d[k] = -1
 
 	def __setPercent__(self, score):
@@ -77,6 +78,16 @@ class UPDBRecord():
 					ret += 1
 		return [str(ret), self.__setPercent__(ret)]
 
+	def __setComplete__(self):
+		# Stores 1 for complete if all family fields are set
+		go = True
+		for i in ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown"]:
+			if self.d[i] == -1:
+				go = False
+				break
+		if go:
+			self.complete = 1
+
 	def __isSet__(self):
 		# Returns false if all values are NA
 		for k in self.d.keys():
@@ -88,6 +99,7 @@ class UPDBRecord():
 		# Returns stored values as list of strings
 		if self.__isSet__():
 			ret = []
+			self.__setComplete__()
 			for k in self.d.keys():
 				if k in limits.keys():
 					# Replace illogical values with -1
@@ -102,6 +114,7 @@ class UPDBRecord():
 			ret = ["-1", "-1"]
 			for k in self.d.keys():
 				ret.append("-1")
+		ret.append(str(self.complete))
 		return ret
 
 #-----------------------------------------------------------------------------
@@ -219,7 +232,7 @@ class UPDBRecord():
 		self.d["SibsDieKnown"] = self.__getCol__(h["NumSibsDieChildhood"], line)
 		if sibs > 30 or self.d["SibsDieKnown"] > sibs:
 			self.d["SibsDieKnown"] = -1
-		elif self.d["SibsDieKnown"] < 1 and sibs >= 0:
+		elif self.d["SibsDieKnown"] < 0 and sibs >= 0:
 	 		self.d["SibsDieKnown"] = 0
 		# Record whether or not any siblings died
 		if self.d["SibsDieKnown"] > 0:
