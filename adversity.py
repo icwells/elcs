@@ -10,8 +10,10 @@ class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = ["byrBin", "AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", "AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI",
-						"MergedNP", "MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score","Complete"]
+		self.newcol = ["byrBin", "AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", 
+						"AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI", "MergedNP", 
+						"MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", 
+						"AdversityScore","%Score","Complete"]
 		self.headers = {}
 		self.income = {}
 		self.bins = []

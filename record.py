@@ -55,7 +55,6 @@ class UPDBRecord():
 			if d > 0:
 				ret = score/d
 		return "{:.2%}".format(ret)
-		
 
 	def __setScore__(self):
 		# Returns score as string
@@ -83,8 +82,16 @@ class UPDBRecord():
 		go = True
 		for i in ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown"]:
 			if self.d[i] == -1:
-				go = False
-				break
+				if "Ma" in i:
+					if "MaD<10" != 0:
+						go = False
+				elif "Pa" in i:
+					if "PaD<10" != 0:
+						go = False
+				else:
+					go = False
+				if not go:
+					break
 		if go:
 			self.complete = 1
 
@@ -206,7 +213,6 @@ class UPDBRecord():
 
 	def __setHomeVal__(self, h, income, line):
 		# Sets vlaues for low rent/home value
-		self.d["LowHomeVal"] = -1
 		own = self.__getCol__(h["OWNERSHP_ToHEAD"], line)
 		if own == 10 or own == 1:
 			self.d["LowHomeVal"] = self.__getComparison__(h["HomeValue_Head1940"], line, less=income["HomeValue_Head1940"])
@@ -215,7 +221,6 @@ class UPDBRecord():
 
 	def __setIncomeMeasures__(self, h, income, line):
 		# Sets values for income
-		self.d["LowSES"] = -1
 		self.d["MergedSEI"] = getMax(h["MaCenSEI"], h["PaCenSEI"], line)
 		self.d["MergedNP"] = getMax(h["MaCenNamPow"], h["PaCenNamPow"], line)
 		if self.d["MergedSEI"] > 0 or self.d["MergedNP"] > 0:
