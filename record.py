@@ -80,7 +80,7 @@ class UPDBRecord():
 	def __setComplete__(self):
 		# Stores 1 for complete if all family fields are set
 		go = True
-		for i in ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown"]:
+		for i in ["MaAgeBr", "PaAgeBr", "SibsDieKnown", "LowSES"]:
 			if self.d[i] == -1:
 				if "Ma" in i:
 					if "MaD<10" != 0:
