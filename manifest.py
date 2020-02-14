@@ -5,6 +5,20 @@ from glob import glob
 from datetime import datetime
 from windowspath import checkFile
 
+class Columns():
+	def __init__(self):
+		self.target = ["byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
+		self.ucr = ["CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY"]
+		self.newcol = ["byrBin", "AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", "AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI", "MergedNP","MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score","Complete"]
+		self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
+
+	def all(self):
+		# Returns list of all column names
+		ret = []
+		for i in [self.target, self.ucr, self.newcol, self.income]:
+			ret.extend(i)
+		return ret
+
 def __getTime__(f):
 	# Returns timestamp from filename
 	stamp = f[f.find(".")+1:f.rfind(".")]
@@ -23,9 +37,12 @@ def __getNewest__(path):
 	mx = max(files.keys())
 	return files[mx]
 
-def getMergedFile():
+def getMergedFile(subset = False):
 	# Returns path to most recent merged file
-	infile = __getNewest__("Z:/ELCS/mergedUCRrecords.*.csv")
+	if subset:
+		infile = __getNewest__("Z:/ELCS/subsetUCRrecords.*.csv")
+	else :
+		infile = __getNewest__("Z:/ELCS/mergedUCRrecords.*.csv")
 	checkFile(infile)
 	return infile
 

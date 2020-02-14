@@ -17,6 +17,7 @@ def summarize(ucr):
 	infiles = []
 	newfiles = getInfiles(False)
 	infiles.append(getMergedFile())
+	infiles.append(getMergedFile(True))
 	if ucr:
 		infiles.append(newfiles["ucr"])
 	infiles.append(newfiles["case"])

@@ -59,22 +59,16 @@ class UPDBRecord():
 	def __setScore__(self):
 		# Returns score as string
 		ret = 0
-		d = 0
 		# Isolate income scores first to evaluate numsibs
 		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
 			if self.d[k] >= 0:
-				d += 1
-				if self.d[k] == 1:
-					ret += 1
+				ret += self.d[k]
 		if self.d[">5Sibs"] >= 0:
-			d += 1
 			if self.d[">5Sibs"] == 1 and ret > 0:
 				ret += 1
 		for k in ["MaD<10", "TeenMa", "PaD<10", "SibDeath"]:
 			if self.d[k] >= 0:
-				d += 1
-				if self.d[k] == 1:
-					ret += 1
+				ret += self.d[k]
 		return [str(ret), self.__setPercent__(ret)]
 
 	def __setComplete__(self):

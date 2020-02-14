@@ -12,11 +12,18 @@ class DatabaseMerger():
 		self.headers = {}
 		self.outdir = setPath()
 		self.outfile = ("{}mergedUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
+		self.subfile = ("{}subsetUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.ucr = {}
 		self.case = {}
 		self.control = {}
+		self.subset = {}
 		self.caseids = set()
 		self.controlids = set()
+
+	def __setColumns__(self):
+		# Stores list of column indeces to subset
+		c = Columns()
+		
 
 	def __correctPersonID__(self, h):
 		# Standardizes the personid column
@@ -120,6 +127,13 @@ class DatabaseMerger():
 			for i in l:
 				out.write(",".join(i) + "\n")
 
+	def __subsetColumns__(self, row):
+		# Removes uneeded columns from subset entries
+		ret = []
+		for idx, i in enumerate(row):
+			if idx in self.columns:
+				ret.append(i)
+
 	def __getHeader__(self):
 		# Returns header for output file
 		header = list(self.headers["case"].keys())
@@ -129,6 +143,19 @@ class DatabaseMerger():
 		header.extend(tail)
 		header.append("Case")
 		return header
+
+	def __parentBirthYears__(self, line):
+		# Returns True if eaither parental birth year is present
+		for idx in [self.headers["case"]["MaByr"], self.headers["case"]["PaByr"]]:
+			if idx < len(line):
+				val = line[idx].strip()
+				if val is not None:
+					try:
+						ret = int(val)
+						return True
+					except ValueError:
+						pass
+		return False
 
 	def __mergeCaseRecords__(self):
 		# Merges ucr and case records
@@ -140,6 +167,8 @@ class DatabaseMerger():
 				del row[self.headers["ucr"]["personid"]]
 				self.case[k].extend(row)
 				self.case[k].append(tag)
+				if self.__parentBirthYears__(self.case[k]):
+					self.subset[k] = self.__subsetColumns__(self.case[k])
 
 	def __addControls__(self):
 		# Adds control records to output list and writes to file
@@ -154,6 +183,8 @@ class DatabaseMerger():
 			# Add empty spaces to preserve case column placement
 			row.extend(blank)
 			res.append(row)
+			if self.__parentBirthYears__(row):
+				self.subset[k] = self.__subsetColumns__(row)
 		self.__writeList__(self.outfile, res, self.__getHeader__())
 
 	def merge(self):
@@ -162,6 +193,7 @@ class DatabaseMerger():
 		self.ucr = self.__setCases__("ucr")
 		self.case = self.__setCases__("case")
 		self.control = self.__setCases__("control")
+		self.__setColumns__()
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
 		self.__addControls__()
