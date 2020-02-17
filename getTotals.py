@@ -65,7 +65,7 @@ class Counter():
 		self.header = {}
 		self.totals = {}
 		self.complete = {"P":0, "N":0, "C":0}
-		self.columns = c.plot()
+		self.columns = c.plot
 		self.__setFields__()
 		self.__getTotals__()
 

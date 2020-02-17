@@ -58,10 +58,11 @@ class Summary():
 		if self.casecontrol == False or (l > self.head["Case"] and s[self.head["Case"]] == "1"):
 			self.casetotal += 1
 			for k in self.case.keys():
-				i = s[self.head[k]].strip()
-				if i:
-					if i != "NA" and i != "-1":
-						self.case[k] += 1
+				if self.head[k] < len(s):
+					i = s[self.head[k]].strip()
+					if i:
+						if i != "NA" and i != "-1":
+							self.case[k] += 1
 		else:
 			self.controltotal += 1
 			for k in self.control.keys():

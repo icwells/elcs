@@ -28,7 +28,8 @@ def setAxes(allLabels=True):
 	ret["MaAgeBr"] = PlotAttributes(a, xmin=10, xmax=55)
 	ret["AgePaD"] = PlotAttributes(a, xmax=85)
 	ret["PaAgeBr"] = PlotAttributes(a, xmin=10, xmax=70)
-	ret["SibsDieKnown"] = PlotAttributes("Number of Siblings", xmax=13)
+	ret["NumSibs"] = PlotAttributes("Number of Siblings", xmax=28)
+	ret["SibsDieKnown"] = PlotAttributes("Number of Siblings Died", xmax=13)
 	ret["MergedSEI"] = PlotAttributes(sei, xmax=100)
 	ret["MergedNP"] = PlotAttributes(np, xmax=1000)
 	if allLabels:
@@ -127,8 +128,9 @@ class Histograms():
 			self.na["p"].append(nas[0])
 			self.na["n"].append(nas[1])
 			self.na["c"].append(nas[2])
-			self.__trimLists__(k)
-			self.__plot__(k)
+			if k != "TeenMa":
+				self.__trimLists__(k)
+				self.__plot__(k)
 		self.__plotNA__()
 
 def main():

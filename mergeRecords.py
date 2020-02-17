@@ -22,13 +22,6 @@ class DatabaseMerger():
 		self.caseids = set()
 		self.controlids = set()
 
-	def __setColumns__(self):
-		# Stores list of column indeces to subset
-		c = allColumns()
-		for idx, i in enumerate(self.header):
-			if i in c:
-				self.columns.append(idx)
-
 	def __correctPersonID__(self, h):
 		# Standardizes the personid column
 		k = "PersonID"
@@ -71,6 +64,22 @@ class DatabaseMerger():
 					d = getDelim(line)
 					h = self.__correctPersonID__(setHeader(line.split(d)))
 					first = False
+
+	def __setColumns__(self):
+		# Stores list of column indeces to subset
+		head = setHeader(self.header)
+		for i in allColumns():
+			if i in head.keys():
+				self.columns.append(head[i])
+
+	def __getHeader__(self):
+		# Returns header for output file
+		self.header = list(self.headers["case"].keys())
+		h = self.headers["ucr"]
+		tail = list(h.keys())
+		del tail[h["personid"]]
+		self.header.extend(tail)
+		self.header.append("Case")
 
 #-------------------------------ID Comparison---------------------------------
 
@@ -137,15 +146,7 @@ class DatabaseMerger():
 		for i in self.columns:
 			if i < len(row):
 				ret.append(row[i])
-
-	def __getHeader__(self):
-		# Returns header for output file
-		self.header = list(self.headers["case"].keys())
-		h = self.headers["ucr"]
-		tail = list(h.keys())
-		del tail[h["personid"]]
-		self.header.extend(tail)
-		self.header.append("Case")
+		return ret
 
 	def __parentBirthYears__(self, line):
 		# Returns True if eaither parental birth year is present
@@ -201,7 +202,7 @@ class DatabaseMerger():
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
 		self.__addControls__()
-		self.__writeList__(self.subfile, self.subset, allColumns())
+		self.__writeList__(self.subfile, self.subset.values(), allColumns())
 
 def main():
 	start = datetime.now()

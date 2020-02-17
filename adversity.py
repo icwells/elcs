@@ -10,7 +10,7 @@ class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = newColumns()
+		self.newcol = newColumns()[:-1]
 		self.headers = {}
 		self.income = {}
 		self.bins = []
