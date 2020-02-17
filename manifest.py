@@ -7,17 +7,29 @@ from windowspath import checkFile
 
 class Columns():
 	def __init__(self):
-		self.target = ["byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
-		self.ucr = ["CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY"]
-		self.newcol = ["byrBin", "AgeAtDiagnosis", "Under10", "AgeMaD", "MaAgeBr", "MAliveDiag", "MAlive18", "AgePaD", "PaAgeBr", "PAliveDiag", "PAlive18", "SibsDieKnown", "MergedSEI", "MergedNP","MaD<10", "TeenMa", "PaD<10", "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score","Complete"]
+		self.target = ["personid", "byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
 		self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
+		self.ucr = ["CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY"]
+		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
+		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore","%Score","Complete"]
+		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", "HomeValue_Head1940", "RENT_ToHEAD", "byrBin", "Complete", "TeenMa"]
 
-	def all(self):
-		# Returns list of all column names
-		ret = []
-		for i in [self.target, self.ucr, self.newcol, self.income]:
-			ret.extend(i)
-		return ret
+def allColumns():
+	# Returns list of all column names
+	c = Columns()
+	ret = []
+	for i in [c.target, c.income, c.ucr, c.newcol]:
+		ret.extend(i)
+	return ret
+
+def newColumns():
+	# Returns new columns
+	c = Columns()
+	ret = c.newcol
+	ret.extend(c.adversity)
+	return ret
+
+#-----------------------------------------------------------------------------
 
 def __getTime__(f):
 	# Returns timestamp from filename

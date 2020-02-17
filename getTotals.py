@@ -59,13 +59,13 @@ class Total():
 class Counter():
 
 	def __init__(self):
-		self.infile = getMergedFile()
+		c = Columns()
+		self.infile = getMergedFile(True)
 		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
 		self.totals = {}
 		self.complete = {"P":0, "N":0, "C":0}
-		self.columns = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP", 
-				"HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New", "byrBin", "Complete"]
+		self.columns = c.plot()
 		self.__setFields__()
 		self.__getTotals__()
 

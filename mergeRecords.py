@@ -10,6 +10,8 @@ class DatabaseMerger():
 	def __init__(self):
 		self.infiles = getInfiles(False)
 		self.headers = {}
+		self.header = []
+		self.columns = []
 		self.outdir = setPath()
 		self.outfile = ("{}mergedUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.subfile = ("{}subsetUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
@@ -22,8 +24,10 @@ class DatabaseMerger():
 
 	def __setColumns__(self):
 		# Stores list of column indeces to subset
-		c = Columns()
-		
+		c = allColumns()
+		for idx, i in enumerate(self.header):
+			if i in c:
+				self.columns.append(idx)
 
 	def __correctPersonID__(self, h):
 		# Standardizes the personid column
@@ -130,19 +134,18 @@ class DatabaseMerger():
 	def __subsetColumns__(self, row):
 		# Removes uneeded columns from subset entries
 		ret = []
-		for idx, i in enumerate(row):
-			if idx in self.columns:
-				ret.append(i)
+		for i in self.columns:
+			if i < len(row):
+				ret.append(row[i])
 
 	def __getHeader__(self):
 		# Returns header for output file
-		header = list(self.headers["case"].keys())
+		self.header = list(self.headers["case"].keys())
 		h = self.headers["ucr"]
 		tail = list(h.keys())
 		del tail[h["personid"]]
-		header.extend(tail)
-		header.append("Case")
-		return header
+		self.header.extend(tail)
+		self.header.append("Case")
 
 	def __parentBirthYears__(self, line):
 		# Returns True if eaither parental birth year is present
@@ -185,7 +188,7 @@ class DatabaseMerger():
 			res.append(row)
 			if self.__parentBirthYears__(row):
 				self.subset[k] = self.__subsetColumns__(row)
-		self.__writeList__(self.outfile, res, self.__getHeader__())
+		self.__writeList__(self.outfile, res, self.header)
 
 	def merge(self):
 		# Merges UCR and UPDB data
@@ -193,10 +196,12 @@ class DatabaseMerger():
 		self.ucr = self.__setCases__("ucr")
 		self.case = self.__setCases__("case")
 		self.control = self.__setCases__("control")
+		self.__getHeader__()
 		self.__setColumns__()
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
 		self.__addControls__()
+		self.__writeList__(self.subfile, self.subset, allColumns())
 
 def main():
 	start = datetime.now()
