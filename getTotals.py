@@ -1,10 +1,10 @@
 '''Prints frequencies of adversity measures to csv'''
 
-import os
 from collections import OrderedDict
 from datetime import datetime
 from manifest import *
 from numpy import zeros
+import os
 from pandas import DataFrame, ExcelWriter
 from windowspath import *
 
@@ -65,6 +65,7 @@ class Counter():
 		self.header = {}
 		self.totals = {}
 		self.complete = {"P":0, "N":0, "C":0}
+		self.all = {"P":0, "N":0, "C":0}
 		self.columns = c.plot
 		self.__setFields__()
 		self.__getTotals__()
@@ -93,6 +94,8 @@ class Counter():
 			self.totals[k].add(status, val)
 		if row[self.header["Complete"]] == "1":
 			self.complete[status] += 1
+		if row[self.header["AllComplete"]] == "1":
+			self.all[status] += 1
 
 	def __getStatus__(self, row):
 		# Returns ER status from line
@@ -134,9 +137,10 @@ class Counter():
 	def printComplete(self):
 		# Prints number of complete records to the screen
 		print("\n\tNumber of complete records:")
-		print(("\t\tER+\t{}").format(self.complete["P"]))
-		print(("\t\tER-\t{}").format(self.complete["N"]))
-		print(("\t\tControl\t{}\n").format(self.complete["C"]))
+		print("\t\tStatus\tComplete\tAllComplete")
+		print(("\t\tER+\t{}\t{}").format(self.complete["P"], self.all["P"]))
+		print(("\t\tER-\t{}\t{}").format(self.complete["N"], self.all["N"]))
+		print(("\t\tControl\t{}\t{}\n").format(self.complete["C"], self.all["C"]))
 
 def main():
 	start = datetime.now()

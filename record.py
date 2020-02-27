@@ -34,6 +34,7 @@ class UPDBRecord():
 		self.diagdate = diagdate
 		self.birth = -1
 		self.complete = 0
+		self.all = 0
 		self.d = OrderedDict()
 		self.__setDict__(columns)
 		self.__setAges__(h, line)
@@ -41,7 +42,7 @@ class UPDBRecord():
 
 	def __setDict__(self, columns):
 		# Initialized dict by column name (skip adversity score, byrBin, and 'complete' columns)
-		for k in columns[1:-3]:
+		for k in columns[1:-4]:
 			self.d[k] = -1
 
 	def __setPercent__(self, score):
@@ -77,10 +78,10 @@ class UPDBRecord():
 		for i in ["MaAgeBr", "PaAgeBr", "SibsDieKnown", "LowSES"]:
 			if self.d[i] == -1:
 				if "Ma" in i:
-					if "MaD<10" != 0:
+					if self.d["MaD<10"] != 0:
 						go = False
 				elif "Pa" in i:
-					if "PaD<10" != 0:
+					if self.d["PaD<10"] != 0:
 						go = False
 				else:
 					go = False
@@ -88,6 +89,13 @@ class UPDBRecord():
 					break
 		if go:
 			self.complete = 1
+			# Determine if all fields are complete
+			for k in self.d.keys():
+				if self.d[k] < 0:
+					go = False
+					break
+			if go:
+				self.all = 1
 
 	def __isSet__(self):
 		# Returns false if all values are NA
@@ -116,6 +124,7 @@ class UPDBRecord():
 			for k in self.d.keys():
 				ret.append("-1")
 		ret.append(str(self.complete))
+		ret.append(str(self.all))
 		return ret
 
 #-----------------------------------------------------------------------------
