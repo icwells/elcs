@@ -15,10 +15,12 @@ class DatabaseMerger():
 		self.outdir = setPath()
 		self.outfile = ("{}mergedUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.subfile = ("{}subsetUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
+		self.incompletefile = ("{}incompleteUCRids.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.ucr = {}
 		self.case = {}
 		self.control = {}
 		self.subset = {}
+		self.incomplete = []
 		self.caseids = set()
 		self.controlids = set()
 
@@ -172,7 +174,9 @@ class DatabaseMerger():
 				self.case[k].extend(row)
 				self.case[k].append(tag)
 				if self.__parentBirthYears__(self.case[k]):
-					self.subset[k] = self.__subsetColumns__(self.case[k])
+					self.subset[k] = self.case[k]
+				else:
+					self.incomplete.append(["case", k])
 
 	def __addControls__(self):
 		# Adds control records to output list and writes to file
@@ -188,7 +192,9 @@ class DatabaseMerger():
 			row.extend(blank)
 			res.append(row)
 			if self.__parentBirthYears__(row):
-				self.subset[k] = self.__subsetColumns__(row)
+				self.subset[k] = row
+			else:
+				self.incomplete.append(["control", k])
 		self.__writeList__(self.outfile, res, self.header)
 
 	def merge(self):
@@ -202,7 +208,8 @@ class DatabaseMerger():
 		self.__checkCaseRecords__()
 		self.__mergeCaseRecords__()
 		self.__addControls__()
-		self.__writeList__(self.subfile, self.subset.values(), allColumns())
+		self.__writeList__(self.subfile, self.subset.values(), self.header)
+		self.__writeList__(self.incompletefile, self.incomplete, ["Type", "personid"])
 
 def main():
 	start = datetime.now()
