@@ -1,6 +1,9 @@
 '''Deinfes class for storing UPDB records'''
 
 from collections import OrderedDict
+from manifest import measureColumns
+
+MEASURES = measureColumns()
 
 def getRent(val):
 	# Sorts rent codes from values
@@ -90,7 +93,7 @@ class UPDBRecord():
 		if go:
 			self.complete = 1
 			# Determine if all fields are complete
-			for k in self.d.keys():
+			for k in MEASURES:
 				if self.d[k] < 0:
 					go = False
 					break

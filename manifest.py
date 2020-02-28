@@ -10,9 +10,15 @@ class Columns():
 		self.target = ["personid", "byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
 		self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
+		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore", "%Score","Complete", "AllComplete", "Case"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", "HomeValue_Head1940", "RENT_ToHEAD", "byrBin", "Complete", "TeenMa"]
+
+def measureColumns():
+	# Returns list of all cancer measures
+	c = Columns()
+	return c.measures
 
 def allColumns():
 	# Returns list of all column names
