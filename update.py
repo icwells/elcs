@@ -6,6 +6,7 @@ from datetime import datetime
 from erColumn import ERupdate
 from getTotals import Counter
 from histograms import Histograms
+from impute import Impute
 from manifest import *
 from mergeRecords import DatabaseMerger
 import os
@@ -18,6 +19,7 @@ def summarize(ucr):
 	newfiles = getInfiles(False)
 	infiles.append(getMergedFile())
 	infiles.append(getMergedFile(True))
+	infiles.append(getMergedFile(imputed = True))
 	if ucr:
 		infiles.append(newfiles["ucr"])
 	infiles.append(newfiles["case"])
@@ -42,6 +44,9 @@ def main():
 	merger = DatabaseMerger()
 	merger.merge()
 	# Get summaries
+	print("\n\tImputing missing data...")
+	i = Impute()
+	i.imputeRecords()
 	summarize(args.ucr)
 	print("\n\tCalculating totals from merged records...")
 	c = Counter()

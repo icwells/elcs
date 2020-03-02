@@ -60,7 +60,7 @@ class Counter():
 
 	def __init__(self):
 		c = Columns()
-		self.infile = getMergedFile(True)
+		self.infile = getMergedFile(imputed = True)
 		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
 		self.totals = {}
@@ -94,7 +94,7 @@ class Counter():
 			self.totals[k].add(status, val)
 		if row[self.header["Complete"]] == "1":
 			self.complete[status] += 1
-		if row[self.header["AllComplete"]] == "1":
+		if row[self.header["AllMeasures"]] == "1":
 			self.all[status] += 1
 
 	def __getStatus__(self, row):
@@ -137,10 +137,10 @@ class Counter():
 	def printComplete(self):
 		# Prints number of complete records to the screen
 		print("\n\tNumber of complete records:")
-		print("\t\tStatus\tComplete\tAllComplete")
-		print(("\t\tER+\t{}\t{}").format(self.complete["P"], self.all["P"]))
-		print(("\t\tER-\t{}\t{}").format(self.complete["N"], self.all["N"]))
-		print(("\t\tControl\t{}\t{}\n").format(self.complete["C"], self.all["C"]))
+		print("\t\tStatus\tComplete\tAllMeasures")
+		print(("\t\tER+\t{}\t\t{}").format(self.complete["P"], self.all["P"]))
+		print(("\t\tER-\t{}\t\t{}").format(self.complete["N"], self.all["N"]))
+		print(("\t\tControl\t{}\t\t{}\n").format(self.complete["C"], self.all["C"]))
 
 def main():
 	start = datetime.now()

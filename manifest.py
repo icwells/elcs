@@ -12,7 +12,7 @@ class Columns():
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
-		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore", "%Score","Complete", "AllComplete", "Case"]
+		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore", "%Score","Complete", "AllMeasures", "Case"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", "HomeValue_Head1940", "RENT_ToHEAD", "byrBin", "Complete", "TeenMa"]
 
 def measureColumns():
@@ -55,10 +55,12 @@ def __getNewest__(path):
 	mx = max(files.keys())
 	return files[mx]
 
-def getMergedFile(subset = False):
+def getMergedFile(subset = False, imputed = False):
 	# Returns path to most recent merged file
 	if subset:
 		infile = __getNewest__("Z:/ELCS/subsetUCRrecords.*.csv")
+	elif imputed:
+		infile = __getNewest__("Z:/ELCS/imputedUCRrecords.*.csv")
 	else :
 		infile = __getNewest__("Z:/ELCS/mergedUCRrecords.*.csv")
 	checkFile(infile)
@@ -81,6 +83,10 @@ def getInfiles(orig = True):
 		infiles["case"] = __getNewest__("Z:/ELCS/updbCases.*.csv")
 		infiles["control"] = __getNewest__("Z:/ELCS/updbControl.*.csv")
 	return infiles
+
+def setOutfile(name):
+	# Formats filename with date and path
+	return ("{}{}.{}.csv").format(setPath(), name, datetime.now().strftime("%Y-%m-%d"))
 
 def setPath():
 	# Sets path to outdir

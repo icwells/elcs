@@ -13,9 +13,9 @@ class DatabaseMerger():
 		self.header = []
 		self.columns = []
 		self.outdir = setPath()
-		self.outfile = ("{}mergedUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
-		self.subfile = ("{}subsetUCRrecords.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
-		self.incompletefile = ("{}incompleteUCRids.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
+		self.outfile = setOutfile("mergedUCRrecords")
+		self.subfile = setOutfile("subsetUCRrecords")
+		self.incompletefile = setOutfile("incompleteUCRids")
 		self.ucr = {}
 		self.case = {}
 		self.control = {}
@@ -151,7 +151,7 @@ class DatabaseMerger():
 		return ret
 
 	def __parentBirthYears__(self, line):
-		# Returns True if eaither parental birth year is present
+		# Returns True if either parental birth year is present
 		for idx in [self.headers["case"]["MaByr"], self.headers["case"]["PaByr"]]:
 			if idx < len(line):
 				val = line[idx].strip()

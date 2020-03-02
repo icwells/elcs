@@ -34,14 +34,16 @@ class UPDBRecord():
 
 	def __init__(self, h, columns, income, line, diagdate):
 		self.start = 1904
+		self.h = h
+		self.line = line
 		self.diagdate = diagdate
 		self.birth = -1
 		self.complete = 0
 		self.all = 0
 		self.d = OrderedDict()
 		self.__setDict__(columns)
-		self.__setAges__(h, line)
-		self.__setIncomeMeasures__(h, income, line)
+		self.__setAges__()
+		self.__setIncomeMeasures__(income)
 
 	def __setDict__(self, columns):
 		# Initialized dict by column name (skip adversity score, byrBin, and 'complete' columns)
@@ -92,13 +94,18 @@ class UPDBRecord():
 					break
 		if go:
 			self.complete = 1
+		for k in MEASURES:
 			# Determine if all fields are complete
-			for k in MEASURES:
+			if k in self.d.keys():
 				if self.d[k] < 0:
 					go = False
 					break
-			if go:
-				self.all = 1
+			else:
+				if int(self.line[self.h[k]]) < 0:
+					go = False
+					break
+		if go:
+			self.all = 1
 
 	def __isSet__(self):
 		# Returns false if all values are NA
@@ -132,9 +139,9 @@ class UPDBRecord():
 
 #-----------------------------------------------------------------------------
 
-	def __getComparison__(self, idx, line, less=None, greater=None):
+	def __getComparison__(self, idx, less=None, greater=None):
 		# Performs given comparison, appends to ext and returns adversity point
-		ret = self.__getCol__(idx, line)
+		ret = self.__getCol__(idx)
 		if ret >= 0:
 			if less is not None and ret < less:
 				ret = 1
@@ -163,11 +170,11 @@ class UPDBRecord():
 		else:
 			return -1
 
-	def __getCol__(self, idx, line):
+	def __getCol__(self, idx):
 		# Returns column value/-1
 		ret = -1
-		if idx < len(line):
-			val = line[idx].strip()
+		if idx < len(self.line):
+			val = self.line[idx].strip()
 			if val is not None:
 				try:
 					ret = int(val)
@@ -184,10 +191,10 @@ class UPDBRecord():
 				ret = 1
 		return ret
 
-	def __lastLiving__(self, idx, line):
+	def __lastLiving__(self, idx):
 		# Returns formatted last living date
 		ret = -1
-		val = line[idx].strip()
+		val = self.line[idx].strip()
 		if val is not None:
 			# Strip month and day
 			if "-" in val:
@@ -204,11 +211,11 @@ class UPDBRecord():
 
 #-----------------------------------------------------------------------------
 
-	def __setIncome__(self, h, income, line):
+	def __setIncome__(self, income):
 		# Finds single income value for family
-		eci = self.__getComparison__(h["EgoCenIncome"], line, less=income["EgoCenIncome"])
-		mci = self.__getComparison__(h["MaCenIncome_New"], line, less=income["MaCenIncome_New"])
-		pci = self.__getComparison__(h["PaCenIncome_New"], line, less=income["PaCenIncome_New"])
+		eci = self.__getComparison__(self.h["EgoCenIncome"], less=income["EgoCenIncome"])
+		mci = self.__getComparison__(self.h["MaCenIncome_New"], less=income["MaCenIncome_New"])
+		pci = self.__getComparison__(self.h["PaCenIncome_New"], less=income["PaCenIncome_New"])
 		l = [eci, mci, pci]
 		for i in l:
 			if i == 1:
@@ -217,30 +224,30 @@ class UPDBRecord():
 			elif i == 0: 
 				self.d["LowIncome"] = 0
 
-	def __setHomeVal__(self, h, income, line):
+	def __setHomeVal__(self, income):
 		# Sets vlaues for low rent/home value
-		own = self.__getCol__(h["OWNERSHP_ToHEAD"], line)
+		own = self.__getCol__(self.h["OWNERSHP_ToHEAD"])
 		if own == 10 or own == 1:
-			self.d["LowHomeVal"] = self.__getComparison__(h["HomeValue_Head1940"], line, less=income["HomeValue_Head1940"])
+			self.d["LowHomeVal"] = self.__getComparison__(self.h["HomeValue_Head1940"], less=income["HomeValue_Head1940"])
 		elif own == 20 or own == 2:
 			self.d["LowHomeVal"] = 1
 
-	def __setIncomeMeasures__(self, h, income, line):
+	def __setIncomeMeasures__(self, income):
 		# Sets values for income
-		self.d["MergedSEI"] = getMax(h["MaCenSEI"], h["PaCenSEI"], line)
-		self.d["MergedNP"] = getMax(h["MaCenNamPow"], h["PaCenNamPow"], line)
+		self.d["MergedSEI"] = getMax(self.h["MaCenSEI"], self.h["PaCenSEI"], self.line)
+		self.d["MergedNP"] = getMax(self.h["MaCenNamPow"], self.h["PaCenNamPow"], self.line)
 		if self.d["MergedSEI"] > 0 or self.d["MergedNP"] > 0:
 			self.d["LowSES"] = 0
 			if self.d["MergedSEI"] < income["MergedSEI"] or self.d["MergedNP"] < income["MergedNP"]:
 				self.d["LowSES"] = 1
-		self.__setIncome__(h, income, line)
-		self.__setHomeVal__(h, income, line)
-		self.d[">5Sibs"] = self.__getComparison__(h["NumSibs"], line, greater=5)
+		self.__setIncome__(income)
+		self.__setHomeVal__(income)
+		self.d[">5Sibs"] = self.__getComparison__(self.h["NumSibs"], greater=5)
 
-	def __sibsDieKnown__(self, h, line):
+	def __sibsDieKnown__(self):
 		# Zero-fills number of siblings died column and stores sibling death point
-		sibs = self.__getCol__(h["NumSibs"], line)
-		self.d["SibsDieKnown"] = self.__getCol__(h["NumSibsDieChildhood"], line)
+		sibs = self.__getCol__(self.h["NumSibs"])
+		self.d["SibsDieKnown"] = self.__getCol__(self.h["NumSibsDieChildhood"])
 		if sibs > 30 or self.d["SibsDieKnown"] > sibs:
 			self.d["SibsDieKnown"] = -1
 		elif self.d["SibsDieKnown"] < 0 and sibs >= 0:
@@ -251,10 +258,10 @@ class UPDBRecord():
 		elif self.d["SibsDieKnown"] == 0:
 			self.d["SibDeath"] = 0
 
-	def __setParentalAges__(self, h, k, line, pb):
+	def __setParentalAges__(self, k, pb):
 		# Sets values relating to parent's age
-		pd = self.__getCol__(h["{}aDyr".format(k)], line)
-		lld = self.__lastLiving__(h["{}alastLivingDate".format(k)], line)
+		pd = self.__getCol__(self.h["{}aDyr".format(k)])
+		lld = self.__lastLiving__(self.h["{}alastLivingDate".format(k)])
 		if pd > 0:
 			self.d["Age{}aD".format(k)] = self.__setAge__(pd, self.birth)
 		self.d["{}AliveDiag".format(k)] = self.__aliveAt__(lld, self.diagdate, 0) 
@@ -267,24 +274,24 @@ class UPDBRecord():
 		else:
 			self.d["{}Alive18".format(k)] = self.__aliveAt__(pd, self.birth, 18)
 
-	def __setAges__(self, h, line):
+	def __setAges__(self):
 		# Stores age-based calculations
 		# Get self, mother's, and father's birth year
-		self.birth = self.__getCol__(h["byr"], line)
+		self.birth = self.__getCol__(self.h["byr"])
 		if self.birth > self.start:
 			# Ignore records from before 1904
 			if self.diagdate > self.start:
 				self.d["AgeAtDiagnosis"] = self.__setAge__(self.diagdate, self.birth)
 				self.d["Under10"] = self.__lessThanTen__(self.d["AgeAtDiagnosis"])
-			mb = self.__getCol__(h["MaByr"], line)
-			pb = self.__getCol__(h["PaByr"], line)
+			mb = self.__getCol__(self.h["MaByr"])
+			pb = self.__getCol__(self.h["PaByr"])
 			if mb > 0:
-				self.__setParentalAges__(h, "M", line, mb)
+				self.__setParentalAges__("M", mb)
 				if self.d["MaAgeBr"] > 0: 
 					self.d["TeenMa"] = 0
 					if self.d["MaAgeBr"] <= 18:
 						# Set 1 for teenage mother
 						self.d["TeenMa"] = 1
 			if pb > 0:
-				self.__setParentalAges__(h, "P", line, pb)
-			self.__sibsDieKnown__(h, line)
+				self.__setParentalAges__("P", pb)
+			self.__sibsDieKnown__()

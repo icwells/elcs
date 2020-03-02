@@ -15,8 +15,8 @@ class Adversity():
 		self.income = {}
 		self.bins = []
 		self.limits = setAxes(False)
-		self.caseout = ("{}updbCases.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
-		self.controlout = ("{}updbControl.{}.csv").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
+		self.caseout = setOutfile("updbCases")
+		self.controlout = setOutfile("updbControl")
 		self.case = self.__setCases__("case")
 		self.control = self.__setCases__("control")
 		self.diagdate = self.__setDiagnosisDates__()
