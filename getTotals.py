@@ -87,7 +87,7 @@ class Counter():
 		# Extracts relevant data from row
 		for idx, k in enumerate(self.columns):
 			try:
-				val = int(row[self.header[k]])
+				val = float(row[self.header[k]])
 			except ValueError:
 				# Record NAs
 				val = -1
