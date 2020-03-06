@@ -103,8 +103,10 @@ class Counter():
 		if len(row) > self.header["Case"]:
 			if row[self.header["Case"]].strip() == "1":
 				s = row[self.header["ER"]].strip()
-				if s == "P" or s == "N":
-					ret = s
+				if s == "0":
+					ret = "P"
+				elif s == "1":
+					ret = "N"
 			else:
 				ret = "C"
 		return ret

@@ -181,9 +181,11 @@ class DatabaseMerger():
 	def __addControls__(self):
 		# Adds control records to output list and writes to file
 		tag = "0"
+		er = "-2"
 		blank = []
-		for i in range(len(self.headers["ucr"])-1):
+		for i in range(len(self.headers["ucr"])-2):
 			blank.append(".")
+		blank.append(er)
 		blank.append(tag)
 		res = list(self.case.values())
 		for k in self.control.keys():

@@ -6,8 +6,8 @@ from windowspath import *
 
 def __getMarkers__():
 	# Returns dict of diagnosis markers
-	marker = {"1": "P", "2": "N"}
-	factor = {"10": "P", "20": "N"}
+	marker = {"1": "0", "2": "1"}
+	factor = {"10": "0", "20": "1"}
 	return {"CTC_TUMOR_MARKER1": marker, "CTC_CS_SITE_SPECIFIC_FACTOR1": factor}
 
 class ERupdate():
@@ -61,7 +61,7 @@ class ERupdate():
 								found = True
 			if found == False:
 				# Append NA
-				self.ucr[idx].append("NA")
+				self.ucr[idx].append("-1")
 		self.__writeList__()
 		
 
