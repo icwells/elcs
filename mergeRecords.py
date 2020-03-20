@@ -163,16 +163,28 @@ class DatabaseMerger():
 						pass
 		return False
 
+	def __setEvent__(self, k):
+		# Sets appropriate event value
+		ret = "-1"
+		val = self.ucr[k][self.headers["ucr"]["ER"]
+		if val == "0":
+			ret = "2"
+		elif val == "1":
+			ret = "1"
+		return ret
+
 	def __mergeCaseRecords__(self):
 		# Merges ucr and case records
 		tag = "1"
 		for k in self.case.keys():
 			if k in self.ucr.keys():
 				row = self.ucr[k]
+				event = self.__setEvent__(k)
 				# Delete redundant column
 				del row[self.headers["ucr"]["personid"]]
 				self.case[k].extend(row)
 				self.case[k].append(tag)
+				self.case[k].append(event)
 				if self.__parentBirthYears__(self.case[k]):
 					self.subset[k] = self.case[k]
 				else:
@@ -182,11 +194,13 @@ class DatabaseMerger():
 		# Adds control records to output list and writes to file
 		tag = "0"
 		er = "-2"
+		event = "3"
 		blank = []
 		for i in range(len(self.headers["ucr"])-2):
 			blank.append(".")
 		blank.append(er)
 		blank.append(tag)
+		blank.apppend(event)
 		res = list(self.case.values())
 		for k in self.control.keys():
 			row = self.control[k]

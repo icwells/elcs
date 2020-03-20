@@ -12,7 +12,7 @@ class Columns():
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
-		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore", "%Score","Complete", "AllMeasures", "Case"]
+		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore", "%Score","Complete", "AllMeasures", "Case", "Event"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", "HomeValue_Head1940", "RENT_ToHEAD", "byrBin", "Complete", "TeenMa"]
 
 def measureColumns():

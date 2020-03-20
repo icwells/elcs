@@ -1,6 +1,7 @@
 '''Replaces empty values with imputed values'''
 
 from collections import OrderedDict
+from copy import deepcopy
 from datetime import datetime
 from manifest import *
 from statistics import mean, stdev
@@ -14,6 +15,7 @@ class Impute():
 		self.outfile = setOutfile("imputedUCRrecords")
 		self.totalimputed = setOutfile("imputedTotals")
 		self.measures = {}
+		self.imputed = OrderedDict()
 		self.totals = OrderedDict()
 		self.__setMeasures__()
 		self.__calculateMeasures__()
@@ -23,6 +25,7 @@ class Impute():
 		for i in self.columns:
 			self.measures[i] = []
 			self.totals[i] = [0, 0]
+			self.imputed[i] = "0"
 
 	def __imputeMeasures__(self):
 		# Calculates imputed values for each field
@@ -69,12 +72,22 @@ class Impute():
 
 	def __replaceValues__(self, row):
 		# Inserts imputed values where needed
+		imp = deepcopy(self.imputed)
 		for i in self.columns:
 			self.totals[i][1] += 1
 			if not row[self.header[i]].strip() or row[self.header[i]] == "-1":
 				row[self.header[i]] = self.measures[i]
+				imp[i] = "1"
 				self.totals[i][0] += 1
+		row.extend(list(imp.values()))
 		return row
+
+	def __outputHeader__(self, line, d):
+		# Appends dummy variable columns to header
+		row = line.strip().split(d)
+		for i in self.columns:
+			row.append("{}_imputed".format(i))
+		return d.join(row) + "\n"
 
 	def imputeRecords(self):
 		# Replaces missing data with imputed measures
@@ -89,8 +102,8 @@ class Impute():
 						row = self.__replaceValues__(s)
 						out.write(",".join(row) + "\n")						
 					else:
-						out.write(line)
 						d = getDelim(line)
+						out.write(self.__outputHeader__(line, d))
 						first = False
 		self.__writeTotals__()
 
