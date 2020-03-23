@@ -82,6 +82,8 @@ class DatabaseMerger():
 		del tail[h["personid"]]
 		self.header.extend(tail)
 		self.header.append("Case")
+		self.header.append("Event")
+		self.header.append("Duration")
 
 #-------------------------------ID Comparison---------------------------------
 
@@ -163,10 +165,44 @@ class DatabaseMerger():
 						pass
 		return False
 
+	def __getDuration__(self, k, col, case=True):
+		# Returns difference between column value and 1990
+		accessed = 2019
+		year = 1990
+		ret = None
+		if case:
+			if col in self.headers["case"].keys():
+				idx = self.headers["case"][col]
+				try:
+					val = int(self.case[k][idx])
+					if col == "AgeAtDiagnosis":
+						# Add age to birth year
+						val += int(self.case[k][self.headers["case"]["byr"]])
+					if val == year:
+						# Avoid excluding records from 1990
+						val = 0.5
+					d = val - year
+					if d > 0:
+						ret = str(d)
+				except:
+					pass
+		if not ret:
+			ret = str(accessed - year)
+		return ret
+
+	def __setDuration__(self, k, case):
+		# Stores duration from 1990
+		ret = "-1"
+		for i in ["AgeAtDiagnosis", "Dyr"]:
+			d = self.__getDuration__(k, i, case)
+			if d:
+				ret = d
+		return ret
+
 	def __setEvent__(self, k):
 		# Sets appropriate event value
 		ret = "-1"
-		val = self.ucr[k][self.headers["ucr"]["ER"]
+		val = self.ucr[k][self.headers["ucr"]["ER"]]
 		if val == "0":
 			ret = "2"
 		elif val == "1":
@@ -180,11 +216,13 @@ class DatabaseMerger():
 			if k in self.ucr.keys():
 				row = self.ucr[k]
 				event = self.__setEvent__(k)
+				duration = self.__setDuration__(k, True)
 				# Delete redundant column
 				del row[self.headers["ucr"]["personid"]]
 				self.case[k].extend(row)
 				self.case[k].append(tag)
 				self.case[k].append(event)
+				self.case[k].append(duration)
 				if self.__parentBirthYears__(self.case[k]):
 					self.subset[k] = self.case[k]
 				else:
@@ -200,12 +238,14 @@ class DatabaseMerger():
 			blank.append(".")
 		blank.append(er)
 		blank.append(tag)
-		blank.apppend(event)
+		blank.append(event)
 		res = list(self.case.values())
 		for k in self.control.keys():
+			duration = self.__setDuration__(k, False)
 			row = self.control[k]
 			# Add empty spaces to preserve case column placement
 			row.extend(blank)
+			row.append(duration)
 			res.append(row)
 			if self.__parentBirthYears__(row):
 				self.subset[k] = row
