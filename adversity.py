@@ -10,7 +10,7 @@ class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = newColumns()[:-2]
+		self.newcol = newColumns(False)
 		self.headers = {}
 		self.income = {}
 		self.bins = []
@@ -118,7 +118,7 @@ class Adversity():
 		# Writes list to csv
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
-			out.write(("{},{}\n").format(",".join(header), ",".join(self.newcol)))
+			out.write(("{},{}\n").format(",".join(header), ",".join(newColumns(True)[:-3])))
 			for i in l:
 				out.write(",".join(i) + "\n")
 

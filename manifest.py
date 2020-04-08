@@ -12,7 +12,8 @@ class Columns():
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
-		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs", "AdversityScore", "%Score","Complete", "AllMeasures", "Case", "Event", "Duration"]
+		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs"]
+		self.scores = ["AdversityScore", "%Score","Complete", "AllMeasures", "Case", "Event", "Duration"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", "HomeValue_Head1940", "RENT_ToHEAD", "byrBin", "Complete", "TeenMa"]
 
 def measureColumns():
@@ -24,15 +25,17 @@ def allColumns():
 	# Returns list of all column names
 	c = Columns()
 	ret = []
-	for i in [c.target, c.income, c.ucr, c.newcol, c.adversity]:
+	for i in [c.target, c.income, c.ucr, c.newcol, c.adversity, c.scores]:
 		ret.extend(i)
 	return ret
 
-def newColumns():
+def newColumns(scores = True):
 	# Returns new columns
 	c = Columns()
 	ret = c.newcol
 	ret.extend(c.adversity)
+	if scores:
+		ret.extend(c.scores)
 	return ret
 
 #-----------------------------------------------------------------------------

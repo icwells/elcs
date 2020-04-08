@@ -47,8 +47,9 @@ class UPDBRecord():
 
 	def __setDict__(self, columns):
 		# Initialized dict by column name (skip adversity score, byrBin, and 'complete' columns)
-		for k in columns[1:-4]:
-			self.d[k] = -1
+		for k in columns:
+			if k != "byrBin":
+				self.d[k] = -1
 
 	def __setPercent__(self, score):
 		# Returns formatted percent score
