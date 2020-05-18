@@ -118,7 +118,7 @@ class Adversity():
 		# Writes list to csv
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
-			out.write(("{},{}\n").format(",".join(header), ",".join(newColumns(True)[:-3])))
+			out.write(("{},{}\n").format(",".join(header), ",".join(newColumns(True))))
 			for i in l:
 				out.write(",".join(i) + "\n")
 

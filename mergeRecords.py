@@ -23,6 +23,7 @@ class DatabaseMerger():
 		self.incomplete = []
 		self.caseids = set()
 		self.controlids = set()
+		self.year = 1990
 
 	def __correctPersonID__(self, h):
 		# Standardizes the personid column
@@ -76,14 +77,13 @@ class DatabaseMerger():
 
 	def __getHeader__(self):
 		# Returns header for output file
+		c = Columns()
 		self.header = list(self.headers["case"].keys())
 		h = self.headers["ucr"]
 		tail = list(h.keys())
 		del tail[h["personid"]]
 		self.header.extend(tail)
-		self.header.append("Case")
-		self.header.append("Event")
-		self.header.append("Duration")
+		self.header.extend(c.events)
 
 #-------------------------------ID Comparison---------------------------------
 
@@ -165,29 +165,48 @@ class DatabaseMerger():
 						pass
 		return False
 
+	def __from1990__(self, k):
+		# Returns differnce of date of diangosis from 1990
+		ret = "-1"
+		col = "DATE_OF_DIAGNOSIS_YYYY"
+		if col in self.headers["ucr"].keys():
+			idx = self.headers["ucr"][col]
+			try:
+				val = int(self.ucr[k][idx])
+				if val == self.year:
+					# Avoid excluding records from 1990
+					val = 0.5
+				d = val - self.year
+				if d > 0:
+					ret = str(d)
+			except:
+				pass
+		return ret
+
 	def __getDuration__(self, k, col, case=True):
 		# Returns difference between column value and 1990
 		accessed = 2019
-		year = 1990
-		ret = None
+		ret = "-1"
 		if case:
 			if col in self.headers["case"].keys():
 				idx = self.headers["case"][col]
 				try:
 					val = int(self.case[k][idx])
+					if col == "DATE_OF_DIAGNOSIS_YYYY":
+						print(idx, val)
 					if col == "AgeAtDiagnosis":
 						# Add age to birth year
 						val += int(self.case[k][self.headers["case"]["byr"]])
-					if val == year:
+					if val == self.year:
 						# Avoid excluding records from 1990
 						val = 0.5
-					d = val - year
+					d = val - self.year
 					if d > 0:
 						ret = str(d)
 				except:
 					pass
-		if not ret:
-			ret = str(accessed - year)
+		if ret == "-1":
+			ret = str(accessed - self.year)
 		return ret
 
 	def __setDuration__(self, k, case):
@@ -195,8 +214,8 @@ class DatabaseMerger():
 		ret = "-1"
 		for i in ["AgeAtDiagnosis", "Dyr"]:
 			d = self.__getDuration__(k, i, case)
-			if d:
-				ret = d
+			if d != "-1":
+				return d
 		return ret
 
 	def __setEvent__(self, k):
@@ -217,12 +236,14 @@ class DatabaseMerger():
 				row = self.ucr[k]
 				event = self.__setEvent__(k)
 				duration = self.__setDuration__(k, True)
+				diagfom90 = self.__from1990__(k)
 				# Delete redundant column
 				del row[self.headers["ucr"]["personid"]]
 				self.case[k].extend(row)
 				self.case[k].append(tag)
 				self.case[k].append(event)
 				self.case[k].append(duration)
+				self.case[k].append(diagfom90)
 				if self.__parentBirthYears__(self.case[k]):
 					self.subset[k] = self.case[k]
 				else:
@@ -233,6 +254,7 @@ class DatabaseMerger():
 		tag = "0"
 		er = "-2"
 		event = "3"
+		from1990 = "-1"
 		blank = []
 		for i in range(len(self.headers["ucr"])-2):
 			blank.append(".")
@@ -246,6 +268,7 @@ class DatabaseMerger():
 			# Add empty spaces to preserve case column placement
 			row.extend(blank)
 			row.append(duration)
+			row.append(from1990)
 			res.append(row)
 			if self.__parentBirthYears__(row):
 				self.subset[k] = row
