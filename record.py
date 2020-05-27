@@ -46,7 +46,7 @@ class UPDBRecord():
 		self.__setIncomeMeasures__(income)
 
 	def __setDict__(self, columns):
-		# Initialized dict by column name (skip adversity score, byrBin, and 'complete' columns)
+		# Initialized dict by column name
 		for k in columns:
 			if k != "byrBin":
 				self.d[k] = -1

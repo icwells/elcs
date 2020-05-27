@@ -4,21 +4,23 @@ from datetime import datetime
 from histograms import setAxes
 from manifest import *
 from record import *
+from reproduction import Reproduction
 from windowspath import *
 
 class Adversity():
 
 	def __init__(self):
 		self.infiles = getInfiles()
-		self.newcol = newColumns(False)
-		self.headers = {}
-		self.income = {}
 		self.bins = []
 		self.limits = setAxes(False)
-		self.caseout = setOutfile("updbCases")
-		self.controlout = setOutfile("updbControl")
 		self.case = self.__setCases__("case")
+		self.caseout = setOutfile("updbCases")
 		self.control = self.__setCases__("control")
+		self.controlout = setOutfile("updbControl")
+		self.headers = {}
+		self.income = {}
+		self.newcol = newColumns(False)
+		self.repro = Reproduction()
 		self.diagdate = self.__setDiagnosisDates__()
 		self.__setScores__()
 
@@ -105,12 +107,16 @@ class Adversity():
 				# Replace whitespace characters to retain spacing
 				line = line.strip()
 				if first == False:
-					ret.append(line.split(d))
+					row = line.split(d)
+					ret.append(row)
+					self.repro.addLine(row)
 				else:
 					d = getDelim(line)
 					h = setHeader(line.split(d))
 					# Store header for later
 					self.headers[k] = h
+					if not self.repro.header:
+						self.repro.header = h
 					first = False
 		return ret
 
@@ -141,6 +147,7 @@ class Adversity():
 			if pid in self.diagdate.keys():
 				dd = self.diagdate[pid]
 			rec = UPDBRecord(h, self.newcol, self.income, i, dd)
+			l[idx].extend(self.repro.getIntervals(i, dd))
 			l[idx].append(self.__birthYearBin__(rec.birth))
 			l[idx].extend(rec.toList(self.limits))
 		return l

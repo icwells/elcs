@@ -8,6 +8,7 @@ from windowspath import checkFile
 class Columns():
 	def __init__(self):
 		self.target = ["personid", "byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
+		self.repro = ["AgeFirstBirth", "AgeLastBirth", "MaxParity"]
 		self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
@@ -32,8 +33,13 @@ def allColumns():
 
 def newColumns(scores = True):
 	# Returns new columns
+	ret = []
 	c = Columns()
-	ret = c.newcol
+	if scores:
+		for i in self.repro:
+			ret.append(i + "Bin")
+		ret.append("YearBirthToDiag")
+	ret.extend(c.newcol)
 	ret.extend(c.adversity)
 	if scores:
 		ret.extend(c.scores)
