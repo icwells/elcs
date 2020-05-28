@@ -13,14 +13,14 @@ class Adversity():
 		self.infiles = getInfiles()
 		self.bins = []
 		self.limits = setAxes(False)
-		self.case = self.__setCases__("case")
-		self.caseout = setOutfile("updbCases")
-		self.control = self.__setCases__("control")
-		self.controlout = setOutfile("updbControl")
 		self.headers = {}
 		self.income = {}
 		self.newcol = newColumns(False)
 		self.repro = Reproduction()
+		self.case = self.__setCases__("case")
+		self.caseout = setOutfile("updbCases")
+		self.control = self.__setCases__("control")
+		self.controlout = setOutfile("updbControl")
 		self.diagdate = self.__setDiagnosisDates__()
 		self.__setScores__()
 
@@ -139,7 +139,6 @@ class Adversity():
 		return "-1"
 
 	def __setMeasures__(self, l, k):
-		# Returns list with parental dates added
 		h = self.headers[k]
 		for idx, i in enumerate(l):
 			dd = -1
@@ -154,6 +153,7 @@ class Adversity():
 
 	def getAdversityScores(self):
 		# Adds parental age columns to output
+		self.repro.setIntervals()
 		self.cases = self.__setMeasures__(self.case, "case")
 		self.__writeList__(self.caseout, self.case, self.headers["case"].keys())
 		self.control = self.__setMeasures__(self.control, "control")

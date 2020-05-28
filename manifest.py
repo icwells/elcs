@@ -36,7 +36,7 @@ def newColumns(scores = True):
 	ret = []
 	c = Columns()
 	if scores:
-		for i in self.repro:
+		for i in c.repro:
 			ret.append(i + "Bin")
 		ret.append("YearBirthToDiag")
 	ret.extend(c.newcol)
