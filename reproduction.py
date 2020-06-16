@@ -1,24 +1,21 @@
 '''Determines intervals for categorizing reproductive measures'''
 
-from manifest import Columns
-from statistics import median, stdev
+from manifest import reproductionColumns
 
 class Reproduction():
 
 	def __init__(self):
-		self.columns = []
-		self.dist = {}
+		self.columns = reproductionColumns()
+		#self.dist = {}
 		self.header = None
-		self.intervals = {} 
-		self.__setColumns__()
+		self.intervals = {"AgeFirstBirth": [20, 30], "AgeLastBirth": [25, 35], "MaxParity": [2, 5]} 
+		'''self.__setColumns__()
 
 	def __setColumns__(self):
 		# Initializes columns and dictionary
 		c = Columns()
-		self.columns = c.repro
-		for i in self.columns:
-			self.intervals[i] = []
-			self.dist[i] = []
+		for i in self.dist.keys():
+			self.intervals[i] = []'''
 
 	def __getColumn__(self, c, line):
 		# Returns column value as an integer
@@ -31,7 +28,7 @@ class Reproduction():
 			pass
 		return ret
 
-	def addLine(self, line):
+	'''def addLine(self, line):
 		# Adds values from line to distributions
 		for i in self.columns:
 			v = self.__getColumn__(i, line)
@@ -43,23 +40,33 @@ class Reproduction():
 		for i in self.columns:
 			md = median(self.dist[i])
 			sd = stdev(self.dist[i])
-			self.intervals[i] = [md-sd, md+sd]
+			self.intervals[i] = [md-sd, md+sd]'''
+
+	def __getIndex__(self, c):
+		# Returns index for correct output column
+		for idx, i in enumerate(self.columns):
+			if i == c:
+				return idx
+		return -1
 
 	def getIntervals(self, line, diag):
 		# Returns interval codes for each column
 		ret = []
-		for i in range(len(self.columns)):
+		for i in range(len(self.columns[:-1])):
 			ret.append("0")
 		ret.append("-1")
-		for idx, i in enumerate(self.columns):
+		for i in self.intervals.keys():
 			v = self.__getColumn__(i, line)
 			if v and v >= 0:
+				ret[0] = "1"
 				if v <= self.intervals[i][0]:
-					ret[idx] = "1"
+					c = 1
 				elif v >= self.intervals[i][1]:
-					ret[idx] = "3"
+					c = 3
 				else:
-					ret[idx] = "2"
+					c = 2
+				idx = self.__getIndex__("{}Bin{}".format(i, c))
+				ret[idx] = "1"
 				if i == "AgeLastBirth" and diag > 0:
 					if diag - v > 1:
 						ret[-1] = "1"

@@ -109,7 +109,7 @@ class Adversity():
 				if first == False:
 					row = line.split(d)
 					ret.append(row)
-					self.repro.addLine(row)
+					#self.repro.addLine(row)
 				else:
 					d = getDelim(line)
 					h = setHeader(line.split(d))
@@ -153,7 +153,7 @@ class Adversity():
 
 	def getAdversityScores(self):
 		# Adds parental age columns to output
-		self.repro.setIntervals()
+		#self.repro.setIntervals()
 		self.cases = self.__setMeasures__(self.case, "case")
 		self.__writeList__(self.caseout, self.case, self.headers["case"].keys())
 		self.control = self.__setMeasures__(self.control, "control")
