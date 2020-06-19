@@ -40,6 +40,9 @@ def setAxes(allLabels=True):
 		ret["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
 		ret["byrBin"] = PlotAttributes("Birth Year Decade Bin (1888-1994)")
 		ret["Complete"] = PlotAttributes("Number of Complete Records")
+		ret["AgeFirstBirth"] = PlotAttributes("Age at First Birth")
+		ret["AgeLastBirth"] = PlotAttributes("Age at Last Birth")
+		ret["MaxParity"] = PlotAttributes("Max Parity")
 	return ret	
 
 class Histograms():
