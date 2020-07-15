@@ -8,7 +8,7 @@ class Reproduction():
 		self.columns = reproductionColumns()
 		#self.dist = {}
 		self.header = None
-		self.intervals = {"AgeFirstBirth": [20, 30], "AgeLastBirth": [25, 35], "MaxParity": [2, 5]} 
+		self.intervals = {"AgeFirstBirth": [18, 28, 38], "AgeLastBirth": [25, 35], "MaxParity": [2, 5]} 
 		'''self.__setColumns__()
 
 	def __setColumns__(self):
@@ -61,10 +61,12 @@ class Reproduction():
 				ret[0] = "1"
 				if v <= self.intervals[i][0]:
 					c = 1
-				elif v >= self.intervals[i][1]:
+				elif v <= self.intervals[i][1]:
+					c = 2
+				elif i != "AgeFirstBirth" or v <= self.intervals[i][2]:
 					c = 3
 				else:
-					c = 2
+					c = 4
 				idx = self.__getIndex__("{}Bin{}".format(i, c))
 				ret[idx] = "1"
 				if i == "AgeLastBirth" and diag > 0:

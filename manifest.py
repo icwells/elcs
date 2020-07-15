@@ -37,10 +37,14 @@ def reproductionColumns(insert = True):
 	ret = []
 	c = Columns()
 	ret.append(c.repro[0])
-	for i in c.repro[1:-1]:
-		if insert:
-			for j in range(1, 4):
+	if insert:
+		end = 5
+		for i in c.repro[1:-1]:
+			for j in range(1, end):
 				ret.append(i + "Bin" + str(j))
+			if end == 5:
+				# 4 bins for age at first birth and 3 for the rest
+				end -= 1
 	ret.append(c.repro[-1])
 	return ret
 
