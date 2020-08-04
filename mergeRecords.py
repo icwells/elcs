@@ -46,7 +46,10 @@ class DatabaseMerger():
 					ret[s[h["personid"]]] = s
 				else:
 					d = getDelim(line)
-					h = self.__correctPersonID__(setHeader(line.split(d)))
+					row = line.split(d)
+					if k == "case":
+						self.header = row
+					h = self.__correctPersonID__(setHeader(row))
 					# Store header for later
 					self.headers[k] = h
 					first = False
@@ -78,7 +81,7 @@ class DatabaseMerger():
 	def __getHeader__(self):
 		# Returns header for output file
 		c = Columns()
-		self.header = list(self.headers["case"].keys())
+		#self.header = list(self.headers["case"].keys())
 		h = self.headers["ucr"]
 		tail = list(h.keys())
 		del tail[h["personid"]]

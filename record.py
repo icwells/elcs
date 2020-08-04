@@ -49,7 +49,7 @@ class UPDBRecord():
 		# Initialized dict by column name
 		for k in columns:
 			if k != "byrBin":
-				self.d[k] = -1
+				self.d[k] = 0
 
 	def __setPercent__(self, score):
 		# Returns formatted percent score
@@ -67,7 +67,7 @@ class UPDBRecord():
 		# Returns score as string
 		ret = 0
 		# Isolate income scores first to evaluate numsibs
-		for k in ["LowSES", "LowIncome", "LowHomeVal"]:
+		for k in ["LowSES", "LowHomeVal"]:
 			if self.d[k] >= 0:
 				ret += self.d[k]
 		if self.d[">5Sibs"] >= 0:
@@ -102,7 +102,8 @@ class UPDBRecord():
 					go = False
 					break
 			else:
-				if int(self.line[self.h[k]]) < 0:
+				v = self.line[self.h[k]]
+				if v and int(v) < 0:
 					go = False
 					break
 		if go:
@@ -133,7 +134,7 @@ class UPDBRecord():
 			# Return list of NAs
 			ret = ["-1", "-1"]
 			for k in self.d.keys():
-				ret.append("-1")
+				ret.append("0")
 		ret.append(str(self.complete))
 		ret.append(str(self.all))
 		return ret
@@ -156,10 +157,8 @@ class UPDBRecord():
 		# Returns 1 if <= 10
 		if 0 <= v <= 10:
 			return 1
-		elif v >= 0:
-			return 0
 		else:
-			return -1
+			return 0
 
 	def __setAge__(self, p, e, filt = False):
 		# Returns p-e
@@ -169,11 +168,11 @@ class UPDBRecord():
 		elif ret >= 0:
 			return ret
 		else:
-			return -1
+			return 0
 
 	def __getCol__(self, idx):
-		# Returns column value/-1
-		ret = -1
+		# Returns column value
+		ret = 0
 		if idx < len(self.line):
 			val = self.line[idx].strip()
 			if val is not None:
@@ -184,17 +183,16 @@ class UPDBRecord():
 		return ret
 
 	def __aliveAt__(self, val, year, target):
-		# Returns -1/0/1 if parent alive when val - year >= target
-		ret = -1
+		# Returns 0/1 if parent alive when val - year >= target
+		ret = 0
 		if val > year:
-			ret = 0
 			if val - year >= target:
 				ret = 1
 		return ret
 
 	def __lastLiving__(self, idx):
 		# Returns formatted last living date
-		ret = -1
+		ret = 0
 		val = self.line[idx].strip()
 		if val is not None:
 			# Strip month and day
@@ -250,7 +248,7 @@ class UPDBRecord():
 		sibs = self.__getCol__(self.h["NumSibs"])
 		self.d["SibsDieKnown"] = self.__getCol__(self.h["NumSibsDieChildhood"])
 		if sibs > 30 or self.d["SibsDieKnown"] > sibs:
-			self.d["SibsDieKnown"] = -1
+			self.d["SibsDieKnown"] = 0
 		elif self.d["SibsDieKnown"] < 0 and sibs >= 0:
 	 		self.d["SibsDieKnown"] = 0
 		# Record whether or not any siblings died

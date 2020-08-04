@@ -138,26 +138,27 @@ class Adversity():
 					return str(idx + 1)
 		return "-1"
 
-	def __setMeasures__(self, l, k):
+	def __setMeasures__(self, outfile, l, k):
 		h = self.headers[k]
-		for idx, i in enumerate(l):
-			dd = -1
-			pid = i[h["personid"]].strip()
-			if pid in self.diagdate.keys():
-				dd = self.diagdate[pid]
-			rec = UPDBRecord(h, self.newcol, self.income, i, dd)
-			l[idx].extend(self.repro.getIntervals(i, dd))
-			l[idx].append(self.__birthYearBin__(rec.birth))
-			l[idx].extend(rec.toList(self.limits))
-		return l
+		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
+		with open(outfile, "w") as out:
+			out.write(("{},{}\n").format(",".join(h), ",".join(newColumns(True))))
+			for idx, i in enumerate(l):
+				dd = -1
+				pid = i[h["personid"]].strip()
+				if pid in self.diagdate.keys():
+					dd = self.diagdate[pid]
+				rec = UPDBRecord(h, self.newcol, self.income, i, dd)
+				i.extend(self.repro.getIntervals(i, dd))
+				i.append(self.__birthYearBin__(rec.birth))
+				i.extend(rec.toList(self.limits))
+				out.write(",".join(i) + "\n")
 
 	def getAdversityScores(self):
 		# Adds parental age columns to output
 		#self.repro.setIntervals()
-		self.cases = self.__setMeasures__(self.case, "case")
-		self.__writeList__(self.caseout, self.case, self.headers["case"].keys())
-		self.control = self.__setMeasures__(self.control, "control")
-		self.__writeList__(self.controlout, self.control, self.headers["control"].keys())
+		self.__setMeasures__(self.caseout, self.case, "case")
+		self.__setMeasures__(self.controlout, self.control, "control")
 
 def main():
 	start = datetime.now()
