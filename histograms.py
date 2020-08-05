@@ -11,11 +11,13 @@ from windowspath import *
 
 class PlotAttributes():
 
-	def __init__(self, label, xmin=0, xmax=None):
+	def __init__(self, label, xmin=0, xmax=None, bins=1):
 		# Stores attributes for specific plots
 		self.label = label
 		self.xmin = xmin
 		self.xmax = xmax
+		# Number to multiply len of data points by
+		self.bins = bins
 
 def setAxes(allLabels=True):
 	# Store unique axes data for each field in dict
@@ -24,9 +26,9 @@ def setAxes(allLabels=True):
 	np = "Nam Powers Score"
 	sei = "Socio-Economic Index"
 	i = "Income (US dollars)"
-	ret["AgeMaD"] = PlotAttributes(a, xmax=85)
+	ret["AgeMaD"] = PlotAttributes(a, xmin=1, xmax=85)
 	ret["MaAgeBr"] = PlotAttributes(a, xmin=10, xmax=55)
-	ret["AgePaD"] = PlotAttributes(a, xmax=85)
+	ret["AgePaD"] = PlotAttributes(a, xmin=1, xmax=85)
 	ret["PaAgeBr"] = PlotAttributes(a, xmin=10, xmax=70)
 	ret["NumSibs"] = PlotAttributes("Number of Siblings", xmax=28)
 	ret["SibsDieKnown"] = PlotAttributes("Number of Siblings Died", xmax=13)
@@ -40,8 +42,8 @@ def setAxes(allLabels=True):
 		ret["RENT_ToHEAD"] = PlotAttributes("Rent (US dollars)")
 		ret["byrBin"] = PlotAttributes("Birth Year Decade Bin (1888-1994)")
 		ret["Complete"] = PlotAttributes("Number of Complete Records")
-		ret["AgeFirstBirth"] = PlotAttributes("Age at First Birth")
-		ret["AgeLastBirth"] = PlotAttributes("Age at Last Birth")
+		ret["AgeFirstBirth"] = PlotAttributes("Age at First Birth", bins=1.15)
+		ret["AgeLastBirth"] = PlotAttributes("Age at Last Birth", bins=1.15)
 		ret["MaxParity"] = PlotAttributes("Max Parity")
 	return ret	
 
@@ -91,7 +93,7 @@ class Histograms():
 		keys = self.data.totals[k].setKeys()
 		if self.axes[k].xmax is None:
 			self.axes[k].xmax = max(keys)
-		return min(100, len(keys))
+		return min(100, int(len(keys)*self.axes[k].bins))
 
 	def __plot__(self, k):
 		# Adds histogram to figure pane

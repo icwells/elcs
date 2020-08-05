@@ -60,7 +60,7 @@ class Counter():
 
 	def __init__(self):
 		c = Columns()
-		self.infile = getMergedFile(imputed = True)
+		self.infile = getMergedFile(subset = True)
 		self.outfile = ("{}adversityTotals.{}.xlsx").format(setPath(), datetime.now().strftime("%Y-%m-%d"))
 		self.header = {}
 		self.totals = {}
