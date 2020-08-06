@@ -34,6 +34,7 @@ class Reproduction():
 			ret.append("0")
 		ret.append("-1")
 		for idx, i in enumerate(self.columns[1:-1]):
+			i = i.replace("Bin", "")
 			v = self.__getColumn__(i, line)
 			if v and v >= 0:
 				ret[0] = "1"
