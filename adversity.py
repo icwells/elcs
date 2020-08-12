@@ -13,8 +13,10 @@ class Adversity():
 		self.infiles = getInfiles()
 		self.bins = []
 		self.limits = setAxes(False)
+		self.grandmean = 0
 		self.headers = {}
 		self.income = {}
+		self.means = {"case": {}, "control": {}}
 		self.newcol = newColumns(False)
 		self.repro = Reproduction()
 		self.case = self.__setCases__("case")
@@ -120,15 +122,15 @@ class Adversity():
 					first = False
 		return ret
 
-	def __writeList__(self, outfile, l, header):
-		# Writes list to csv
-		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
-		with open(outfile, "w") as out:
-			out.write(("{},{}\n").format(",".join(header), ",".join(newColumns(True))))
-			for i in l:
-				out.write(",".join(i) + "\n")
-
 #-----------------------------------------------------------------------------
+
+	def __calculateMean__(self):
+		# Calculates grand mean of scores
+		v = 0
+		for k in self.means.keys():
+			c = list(self.means[k].values())
+			v += sum(c) / len(c)
+		self.grandmean = v / len(self.means.keys())
 
 	def __birthYearBin__(self, birth):
 		# Determines which decade bin birth falls in
@@ -138,27 +140,39 @@ class Adversity():
 					return str(idx + 1)
 		return "-1"
 
-	def __setMeasures__(self, outfile, l, k):
+	def __setMeasures__(self, l, k):
 		h = self.headers[k]
+		for idx, i in enumerate(l):
+			dd = -1
+			pid = i[h["personid"]].strip()
+			if pid in self.diagdate.keys():
+				dd = self.diagdate[pid]
+			rec = UPDBRecord(h, self.newcol, self.income, i, dd)
+			i.extend(self.repro.getIntervals(i, dd))
+			i.append(self.__birthYearBin__(rec.birth))
+			i.extend(rec.toList(self.limits))
+			# Store score by personid
+			self.means[k][pid] = rec.score
+		return l
+
+	def __writeList__(self, outfile, l, k):
+		# Writes list to csv
+		header = self.headers[k]
 		print(("\tWriting {} records to {}...").format(len(l), getFileName(outfile)))
 		with open(outfile, "w") as out:
-			out.write(("{},{}\n").format(",".join(h), ",".join(newColumns(True))))
-			for idx, i in enumerate(l):
-				dd = -1
-				pid = i[h["personid"]].strip()
-				if pid in self.diagdate.keys():
-					dd = self.diagdate[pid]
-				rec = UPDBRecord(h, self.newcol, self.income, i, dd)
-				i.extend(self.repro.getIntervals(i, dd))
-				i.append(self.__birthYearBin__(rec.birth))
-				i.extend(rec.toList(self.limits))
+			out.write(("{},{}\n").format(",".join(header), ",".join(newColumns(True))))
+			for i in l:
+				pid = i[header["personid"]].strip()
+				i.append(str(self.means[k][pid] - self.grandmean))
 				out.write(",".join(i) + "\n")
 
 	def getAdversityScores(self):
 		# Adds parental age columns to output
-		#self.repro.setIntervals()
-		self.__setMeasures__(self.caseout, self.case, "case")
-		self.__setMeasures__(self.controlout, self.control, "control")
+		self.case = self.__setMeasures__(self.case, "case")
+		self.control = self.__setMeasures__(self.control, "control")
+		self.__calculateMean__()
+		self.__writeList__(self.caseout, self.case, "case")
+		self.__writeList__(self.controlout, self.control, "control")
 
 def main():
 	start = datetime.now()

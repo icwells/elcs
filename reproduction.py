@@ -7,7 +7,7 @@ class Reproduction():
 	def __init__(self):
 		self.columns = reproductionColumns()
 		self.header = None
-		self.intervals = {"AgeFirstBirth": [18, 28, 38], "AgeLastBirth": [25, 35], "MaxParity": [2, 5]}
+		self.intervals = {"AgeFirstBirth": [18, 24, 35], "AgeLastBirth": [25, 35], "MaxParity": [2, 5]}
 
 	def __getColumn__(self, c, line):
 		# Returns column value as an integer

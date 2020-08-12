@@ -40,6 +40,7 @@ class UPDBRecord():
 		self.birth = -1
 		self.complete = 0
 		self.all = 0
+		self.score = 0
 		self.d = OrderedDict()
 		self.__setDict__(columns)
 		self.__setAges__()
@@ -51,32 +52,31 @@ class UPDBRecord():
 			if k != "byrBin":
 				self.d[k] = 0
 
-	def __setPercent__(self, score):
+	def __setPercent__(self):
 		# Returns formatted percent score
 		ret = 0
-		if score > 0:
+		if self.score > 0:
 			d = 0 
 			for k in self.d.keys():
 				if self.d[k] >= 0:
 					d += 1
 			if d > 0:
-				ret = score/d
+				ret = self.score/d
 		return "{:.2%}".format(ret)
 
 	def __setScore__(self):
 		# Returns score as string
-		ret = 0
 		# Isolate income scores first to evaluate numsibs
 		for k in ["LowSES", "LowHomeVal"]:
 			if self.d[k] >= 0:
-				ret += self.d[k]
+				self.score += self.d[k]
 		if self.d[">5Sibs"] >= 0:
-			if self.d[">5Sibs"] == 1 and ret > 0:
-				ret += 1
+			if self.d[">5Sibs"] == 1 and self.score > 0:
+				self.score += 1
 		for k in ["MaD<10", "TeenMa", "PaD<10", "SibDeath"]:
 			if self.d[k] >= 0:
-				ret += self.d[k]
-		return [str(ret), self.__setPercent__(ret)]
+				self.score += self.d[k]
+		return [str(self.score), self.__setPercent__()]
 
 	def __setComplete__(self):
 		# Stores 1 for complete if all family fields are set
