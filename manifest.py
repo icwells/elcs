@@ -17,7 +17,7 @@ class Columns():
 		self.scores = ["AdversityScore", "%Score","Complete", "AllMeasures", "CensoredScore"]
 		self.events = ["Case", "Event", "Duration", "DiagnosisFrom1990"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", 
-					"HomeValue_Head1940", "RENT_ToHEAD", "byrBin", "Complete", "TeenMa","AgeFirstBirth", "AgeLastBirth", "MaxParity"]
+					"byrBin", "Complete", "TeenMa","AgeFirstBirth", "AgeLastBirth", "MaxParity"]
 
 def measureColumns():
 	# Returns list of all cancer measures
