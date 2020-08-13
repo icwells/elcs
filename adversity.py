@@ -36,7 +36,7 @@ class Adversity():
 			np = getMax(self.headers[key]["MaCenNamPow"], self.headers[key]["PaCenNamPow"], i)
 			if np >= 0:
 				inc["MergedNP"].append(np)
-			for k in ["EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New", "HomeValue_Head1940"]:
+			'''for k in ["EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New", "HomeValue_Head1940"]:
 				idx = self.headers[key][k]
 				if idx < len(i):
 					try:
@@ -44,7 +44,7 @@ class Adversity():
 						if v > 0.0:
 							inc[k].append(v)
 					except ValueError:
-						pass
+						pass'''
 		return inc
 
 	def __setBins__(self):
@@ -59,7 +59,7 @@ class Adversity():
 	def __setScores__(self):
 		# Determines 25% mark for income status measures
 		p = 0.25
-		inc = {"MergedSEI": [], "MergedNP": [], "EgoCenIncome": [], "MaCenIncome_New": [], "PaCenIncome_New": [], "HomeValue_Head1940": []}
+		inc = {"MergedSEI": [], "MergedNP": []}
 		inc = self.__getTotals__("case", self.case, inc)
 		inc = self.__getTotals__("control", self.control, inc)
 		for k in inc.keys():

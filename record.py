@@ -5,7 +5,7 @@ from manifest import measureColumns
 
 MEASURES = measureColumns()
 
-def getRent(val):
+'''def getRent(val):
 	# Sorts rent codes from values
 	ret = -1
 	if val != "0000" and val != "0001" and val != "9998" and val != "9999":
@@ -13,7 +13,7 @@ def getRent(val):
 			ret = float(val)
 		except ValueError:
 			pass
-	return ret
+	return ret'''
 
 def getMax(x, y, line):
 	# Returns higher value of line[x] or line[y]
@@ -67,9 +67,8 @@ class UPDBRecord():
 	def __setScore__(self):
 		# Returns score as string
 		# Isolate income scores first to evaluate numsibs
-		for k in ["LowSES", "LowHomeVal"]:
-			if self.d[k] >= 0:
-				self.score += self.d[k]
+		if self.d["LowSES"] >= 0:
+			self.score += self.d["LowSES"]
 		if self.d[">5Sibs"] >= 0:
 			if self.d[">5Sibs"] == 1 and self.score > 0:
 				self.score += 1
@@ -210,7 +209,7 @@ class UPDBRecord():
 
 #-----------------------------------------------------------------------------
 
-	def __setIncome__(self, income):
+	'''def __setIncome__(self, income):
 		# Finds single income value for family
 		eci = self.__getComparison__(self.h["EgoCenIncome"], less=income["EgoCenIncome"])
 		mci = self.__getComparison__(self.h["MaCenIncome_New"], less=income["MaCenIncome_New"])
@@ -229,7 +228,7 @@ class UPDBRecord():
 		if own == 10 or own == 1:
 			self.d["LowHomeVal"] = self.__getComparison__(self.h["HomeValue_Head1940"], less=income["HomeValue_Head1940"])
 		elif own == 20 or own == 2:
-			self.d["LowHomeVal"] = 1
+			self.d["LowHomeVal"] = 1'''
 
 	def __setIncomeMeasures__(self, income):
 		# Sets values for income
@@ -239,8 +238,8 @@ class UPDBRecord():
 			self.d["LowSES"] = 0
 			if self.d["MergedSEI"] < income["MergedSEI"] or self.d["MergedNP"] < income["MergedNP"]:
 				self.d["LowSES"] = 1
-		self.__setIncome__(income)
-		self.__setHomeVal__(income)
+		#self.__setIncome__(income)
+		#self.__setHomeVal__(income)
 		self.d[">5Sibs"] = self.__getComparison__(self.h["NumSibs"], greater=5)
 
 	def __sibsDieKnown__(self):

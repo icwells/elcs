@@ -9,11 +9,11 @@ class Columns():
 	def __init__(self):
 		self.target = ["personid", "byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
 		self.repro = ["BirthKnown", "AgeFirstBirthBin", "AgeLastBirthBin", "MaxParityBin", "YearBirthToDiag"]
-		self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
+		#self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
-		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", "LowIncome", "LowHomeVal", ">5Sibs"]
+		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", ">5Sibs"]
 		self.scores = ["AdversityScore", "%Score","Complete", "AllMeasures", "CensoredScore"]
 		self.events = ["Case", "Event", "Duration", "DiagnosisFrom1990"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", 
@@ -28,7 +28,7 @@ def allColumns():
 	# Returns list of all column names
 	c = Columns()
 	ret = []
-	for i in [c.target, c.income, c.ucr, c.newcol, c.adversity, c.scores]:
+	for i in [c.target, c.ucr, c.newcol, c.adversity, c.scores]:
 		ret.extend(i)
 	return ret
 
