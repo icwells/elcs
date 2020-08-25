@@ -8,7 +8,7 @@ from windowspath import checkFile
 class Columns():
 	def __init__(self):
 		self.target = ["personid", "byr", "MaByr", "PaByr", "MaAgeBr", "PaAgeBr", "MaDyr", "PaDyr", "MalastLivingDate", "PalastLivingDate", "NumSibs", "NumSibsDieChildhood"]
-		self.repro = ["BirthKnown", "AgeFirstBirthBin", "AgeLastBirthBin", "MaxParityBin", "YearBirthToDiag"]
+		self.repro = ["BirthKnown", "AgeFirstBirthBin", "MaxParityBin"]
 		#self.income = ["HomeValue_Head1940", "RENT_ToHEAD", "EgoCenIncome", "MaCenIncome_New", "PaCenIncome_New"]
 		self.ucr = ["DistId", "CTC_TUMOR_MARKER1", "CTC_CS_SITE_SPECIFIC_FACTOR1", "DATE_OF_DIAGNOSIS_YYYY", "ER"]
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
@@ -17,7 +17,7 @@ class Columns():
 		self.scores = ["AdversityScore", "%Score","Complete", "AllMeasures", "CensoredScore"]
 		self.events = ["Case", "Event", "Duration", "DiagnosisFrom1990"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", 
-					"byrBin", "Complete", "TeenMa","AgeFirstBirth", "AgeLastBirth", "MaxParity"]
+					"byrBin", "Complete", "TeenMa","AgeFirstBirth", "MaxParity"]
 
 def measureColumns():
 	# Returns list of all cancer measures
