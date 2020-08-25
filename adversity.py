@@ -126,11 +126,12 @@ class Adversity():
 
 	def __calculateMean__(self):
 		# Calculates grand mean of scores
-		v = 0
+		means = []
+		d = 0
 		for k in self.means.keys():
-			c = list(self.means[k].values())
-			v += sum(c) / len(c)
-		self.grandmean = v / len(self.means.keys())
+			means.extemd(list(self.means[k].values()))
+			d += len(c)
+		self.grandmean = sum(means) / d
 
 	def __birthYearBin__(self, birth):
 		# Determines which decade bin birth falls in
