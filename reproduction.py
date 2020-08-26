@@ -28,7 +28,7 @@ class Reproduction():
 		ret.append("-1")
 		for idx, i in enumerate(self.columns[1:-1]):
 			i = i.replace("Bin", "")
-			if i != "MaxParity" or ret[idx] == "1":
+			if i != "MaxParity" or ret[0] == "1":
 				v = self.__getColumn__(i, line)
 				if v and v >= 0:
 					if v >= 1:
