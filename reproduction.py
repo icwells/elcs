@@ -25,7 +25,6 @@ class Reproduction():
 		ret = []
 		for i in range(len(self.columns)):
 			ret.append("0")
-		ret.append("-1")
 		for idx, i in enumerate(self.columns[1:]):
 			i = i.replace("Bin", "")
 			if i != "MaxParity" or ret[0] == "1":
