@@ -7,7 +7,7 @@ class Reproduction():
 	def __init__(self):
 		self.columns = reproductionColumns()
 		self.header = None
-		self.intervals = {"AgeFirstBirth": [20, 24, 39], "MaxParity": [2, 5]}
+		self.intervals = {"AgeFirstBirth": [20, 24, 30], "MaxParity": [2, 5]}
 
 	def __getColumn__(self, c, line):
 		# Returns column value as an integer
@@ -20,13 +20,13 @@ class Reproduction():
 			pass
 		return ret
 
-	def getIntervals(self, line, diag):
+	def getIntervals(self, line, diag): 
 		# Returns interval codes for each column
 		ret = []
-		for i in range(len(self.columns[:-1])):
+		for i in range(len(self.columns)):
 			ret.append("0")
 		ret.append("-1")
-		for idx, i in enumerate(self.columns[1:-1]):
+		for idx, i in enumerate(self.columns[1:]):
 			i = i.replace("Bin", "")
 			if i != "MaxParity" or ret[0] == "1":
 				v = self.__getColumn__(i, line)
