@@ -23,22 +23,24 @@ class Reproduction():
 	def getIntervals(self, line, diag): 
 		# Returns interval codes for each column
 		ret = []
+		count = 0
 		for i in range(len(self.columns)):
 			ret.append("0")
 		for idx, i in enumerate(self.columns[1:]):
 			i = i.replace("Bin", "")
-			if i != "MaxParity" or ret[0] == "1":
-				v = self.__getColumn__(i, line)
-				if v and v >= 0:
-					if v >= 1:
-						ret[0] = "1"
-					# Add to bin value for each increasing interval
-					c = 1
-					for interval in self.intervals[i]:
-						if v > interval:
-							c += 1
-						else:
-							break
-					# Account for skipped index
-					ret[idx + 1] = str(c)
+			v = self.__getColumn__(i, line)
+			if v and v >= 0:
+				if v >= 1:
+					count += 1
+				# Add to bin value for each increasing interval
+				c = 1
+				for interval in self.intervals[i]:
+					if v > interval:
+						c += 1
+					else:
+						break
+				# Account for skipped index
+				ret[idx + 1] = str(c)
+		if count == len(self.columns) - 1:
+			ret[0] = "1"
 		return ret
