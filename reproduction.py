@@ -20,6 +20,16 @@ class Reproduction():
 			pass
 		return ret
 
+	def __getBin__(self, i, v):
+		# Adds to bin value for each increasing interval
+		c = 1
+		for interval in self.intervals[i]:
+			if v > interval:
+				c += 1
+			else:
+				break
+		return str(c)
+
 	def getIntervals(self, line, diag): 
 		# Returns interval codes for each column
 		ret = []
@@ -30,17 +40,15 @@ class Reproduction():
 			i = i.replace("Bin", "")
 			v = self.__getColumn__(i, line)
 			if v and v >= 0:
-				if v >= 1:
-					count += 1
-				# Add to bin value for each increasing interval
-				c = 1
-				for interval in self.intervals[i]:
-					if v > interval:
-						c += 1
-					else:
-						break
-				# Account for skipped index
-				ret[idx + 1] = str(c)
+				go = True
+				if i == "AgeFirstBirth" and 50 < v < 11:
+					# Exclude afb less than 11 or greater than 50
+					go = False
+				if go:
+					if v >= 1:
+						count += 1
+					# Account for skipped index
+					ret[idx + 1] = self.__getBin__(i, v)
 		if count == len(self.columns) - 1:
 			ret[0] = "1"
 		return ret

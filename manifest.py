@@ -14,7 +14,7 @@ class Columns():
 		self.measures = ["MaAgeBr", "AgeMaD", "AgePaD", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.newcol = ["byrBin", "AgeAtDiagnosis", "AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "SibsDieKnown", "MergedSEI", "MergedNP"]
 		self.adversity = ["Under10", "MAliveDiag", "MAlive18", "MaD<10", "PAliveDiag", "TeenMa", "PaD<10", "PAlive18",  "SibDeath", "LowSES", ">5Sibs"]
-		self.scores = ["AdversityScore", "%Score","Complete", "AllMeasures", "CensoredScore"]
+		self.scores = ["AdversityScore", "%Score","Complete", "AllMeasures", "CenterScore"]
 		self.events = ["Case", "Event", "Duration", "DiagnosisFrom1990"]
 		self.plot = ["AgeMaD", "MaAgeBr", "AgePaD", "PaAgeBr", "NumSibs", "SibsDieKnown", "MergedSEI", "MergedNP", 
 					"byrBin", "Complete", "TeenMa","AgeFirstBirth", "MaxParity"]
