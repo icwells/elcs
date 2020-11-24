@@ -264,7 +264,7 @@ class UPDBRecord():
 			self.d["Age{}aD".format(k)] = self.__setAge__(pd, self.birth)
 		self.d["{}AliveDiag".format(k)] = self.__aliveAt__(lld, self.diagdate, 0) 
 		self.d["{}aAgeBr".format(k)] = self.__setAge__(self.birth, pb, True)	
-		self.d["{}aD<10".format(k)] = self.__lessThanTen__(self.d["AgeMaD"])
+		self.d["{}aD<10".format(k)] = self.__lessThanTen__(self.d["Age{}aD".format(k)])
 		if self.d["{}aD<10".format(k)] == 1:
 			self.d["{}Alive18".format(k)] = 0
 		elif self.d["Age{}aD".format(k)] >= 18:
