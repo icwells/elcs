@@ -32,6 +32,7 @@ class Reproduction():
 
 	def getIntervals(self, line, diag): 
 		# Returns interval codes for each column
+		go = True
 		ret = []
 		count = 0
 		for i in range(len(self.columns)):
@@ -40,10 +41,11 @@ class Reproduction():
 			i = i.replace("Bin", "")
 			v = self.__getColumn__(i, line)
 			if v and v >= 0:
-				go = True
-				if i == "AgeFirstBirth" and 50 < v < 11:
-					# Exclude afb less than 11 or greater than 50
-					go = False
+				if i == "AgeFirstBirth":
+					if 11 > v or v > 50:
+						# Exclude afb less than 11 or greater than 50
+						go = False
+						break
 				if go:
 					if v >= 1:
 						count += 1
@@ -51,4 +53,4 @@ class Reproduction():
 					ret[idx + 1] = self.__getBin__(i, v)
 		if count == len(self.columns) - 1:
 			ret[0] = "1"
-		return ret
+		return ret, go

@@ -13,6 +13,7 @@ class Adversity():
 		self.infiles = getInfiles()
 		self.bins = []
 		self.limits = setAxes(False)
+		self.fail = set()
 		self.grandmean = 0
 		self.headers = {}
 		self.income = {}
@@ -141,17 +142,23 @@ class Adversity():
 
 	def __setMeasures__(self, l, k):
 		h = self.headers[k]
+		rm = []
 		for idx, i in enumerate(l):
 			dd = -1
 			pid = i[h["personid"]].strip()
 			if pid in self.diagdate.keys():
 				dd = self.diagdate[pid]
 			rec = UPDBRecord(h, self.newcol, self.income, i, dd)
-			i.extend(self.repro.getIntervals(i, dd))
-			i.append(self.__birthYearBin__(rec.birth))
-			i.extend(rec.toList(self.limits))
-			# Store score by personid
-			self.means[k][pid] = rec.score
+			rep, go = self.repro.getIntervals(i, dd)
+			if go:
+				i.extend(rep)
+				i.append(self.__birthYearBin__(rec.birth))
+				i.extend(rec.toList(self.limits))
+				# Store score by personid
+				self.means[k][pid] = rec.score
+			else:
+				# Clear entry
+				self.fail.add(pid)
 		return l
 
 	def __writeList__(self, outfile, l, k):
@@ -162,8 +169,9 @@ class Adversity():
 			out.write(("{},{}\n").format(",".join(header), ",".join(newColumns(True))))
 			for i in l:
 				pid = i[header["personid"]].strip()
-				i.append(str(self.means[k][pid] - self.grandmean))
-				out.write(",".join(i) + "\n")
+				if pid not in self.fail:
+					i.append(str(self.means[k][pid] - self.grandmean))
+					out.write(",".join(i) + "\n")
 
 	def getAdversityScores(self):
 		# Adds parental age columns to output
