@@ -154,7 +154,7 @@ class UPDBRecord():
 
 	def __lessThanTen__(self, v):
 		# Returns 1 if <= 10
-		if 0 <= v <= 10:
+		if 0 < v <= 10:
 			return 1
 		else:
 			return 0
