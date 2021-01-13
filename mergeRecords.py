@@ -8,6 +8,7 @@ from windowspath import *
 class DatabaseMerger():
 
 	def __init__(self):
+		self.count = {"Merged": {"case": 0, "control": 0}, "Subset": {"case": 0, "control": 0}}
 		self.infiles = getInfiles(False)
 		self.headers = {}
 		self.header = []
@@ -247,8 +248,10 @@ class DatabaseMerger():
 				self.case[k].append(event)
 				self.case[k].append(duration)
 				self.case[k].append(diagfom90)
+				self.count["Merged"]["case"] += 1
 				if self.__parentBirthYears__(self.case[k]):
 					self.subset[k] = self.case[k]
+					self.count["Subset"]["case"] += 1
 				else:
 					self.incomplete.append(["case", k])
 
@@ -273,8 +276,10 @@ class DatabaseMerger():
 			row.append(duration)
 			row.append(from1990)
 			res.append(row)
+			self.count["Merged"]["control"] += 1
 			if self.__parentBirthYears__(row):
 				self.subset[k] = row
+				self.count["Subset"]["control"] += 1
 			else:
 				self.incomplete.append(["control", k])
 		self.__writeList__(self.outfile, res, self.header)
@@ -292,6 +297,8 @@ class DatabaseMerger():
 		self.__addControls__()
 		self.__writeList__(self.subfile, self.subset.values(), self.header)
 		self.__writeList__(self.incompletefile, self.incomplete, ["Type", "personid"])
+		for i in self.count.keys():
+			fileTotals("{} records".format(i), self.count[i]["case"], self.count[i]["control"])
 
 def main():
 	start = datetime.now()

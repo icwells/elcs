@@ -143,6 +143,8 @@ class Counter():
 		print(("\t\tER+\t{}\t\t{}").format(self.complete["P"], self.all["P"]))
 		print(("\t\tER-\t{}\t\t{}").format(self.complete["N"], self.all["N"]))
 		print(("\t\tControl\t{}\t\t{}\n").format(self.complete["C"], self.all["C"]))
+		fileTotals("Core measures complete", self.complete["P"] + self.complete["N"], self.complete["C"])
+		fileTotals("All measures complete", self.all["P"] + self.all["N"], self.all["C"])
 
 def main():
 	start = datetime.now()

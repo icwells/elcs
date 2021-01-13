@@ -10,6 +10,7 @@ from windowspath import *
 class Impute():
 
 	def __init__(self):
+		self.count = {"case": 0, "control": 0}
 		self.header = {}
 		self.columns = measureColumns()
 		self.outfile = setOutfile("imputedUCRrecords")
@@ -80,6 +81,10 @@ class Impute():
 				imp[i] = "1"
 				self.totals[i][0] += 1
 		row.extend(list(imp.values()))
+		if row[self.header["Case"]].strip() == "1":
+			self.count["case"] += 1
+		else:
+			self.count["control"] += 1
 		return row
 
 	def __outputHeader__(self, line, d):
@@ -100,12 +105,13 @@ class Impute():
 						line = line.strip()
 						s = line.split(d)
 						row = self.__replaceValues__(s)
-						out.write(",".join(row) + "\n")						
+						out.write(",".join(row) + "\n")			
 					else:
 						d = getDelim(line)
 						out.write(self.__outputHeader__(line, d))
 						first = False
 		self.__writeTotals__()
+		fileTotals("Imputed records", self.count["case"], self.count["control"])
 
 def main():
 	start = datetime.now()

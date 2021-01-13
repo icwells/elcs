@@ -10,6 +10,7 @@ from windowspath import *
 class Adversity():
 
 	def __init__(self):
+		self.count = {"case": 0, "control": 0}
 		self.infiles = getInfiles()
 		self.bins = []
 		self.limits = setAxes(False)
@@ -156,6 +157,7 @@ class Adversity():
 				i.extend(rec.toList(self.limits))
 				# Store score by personid
 				self.means[k][pid] = rec.score
+				self.count[k] += 1
 			else:
 				# Clear entry
 				self.fail.add(pid)
@@ -180,6 +182,7 @@ class Adversity():
 		self.__calculateMean__()
 		self.__writeList__(self.caseout, self.case, "case")
 		self.__writeList__(self.controlout, self.control, "control")
+		fileTotals("Adversity calculations", self.count["case"], self.count["control"], True)
 
 def main():
 	start = datetime.now()

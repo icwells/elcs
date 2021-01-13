@@ -51,6 +51,17 @@ def newColumns(scores = True):
 
 #-----------------------------------------------------------------------------
 
+def fileTotals(step, case, control, new=False):
+	# Records totals for given file
+	filename = ("{}{}.csv").format(setPath(), "filteringTotals")
+	if new:
+		with open(filename, "w") as out:
+			out.write("File Name,Case,Control,Total\n")
+	with open(filename, "a") as out:
+		out.write(",".join([step, str(case), str(control), str(case + control)]) + "\n")
+
+#-----------------------------------------------------------------------------
+
 def __getTime__(f):
 	# Returns timestamp from filename
 	stamp = f[f.find(".")+1:f.rfind(".")]
