@@ -91,6 +91,13 @@ def getMergedFile(subset = False, imputed = False):
 	checkFile(infile)
 	return infile
 
+def getCensusFiles():
+	# Returns path to census 1940 files
+	infiles = {}
+	infiles["case"] = "Z:/NewDataFromDavid/20220224_Census1940_Variables/David_Amy_BreastCancer_Main_20220224.csv"
+	infiles["control"] = "Z:/NewDataFromDavid/20220224_Census1940_Variables/David_Amy_BreastCancer_Main_Ctrl_20220224.csv"
+	return infiles
+
 def getInfiles(orig = True):
 	# Returns dict of input files
 	infiles = {}

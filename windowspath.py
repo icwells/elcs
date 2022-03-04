@@ -96,3 +96,21 @@ def runProc(cmd, log = None):
 		with open(log, "w") as out:
 			# Pipe output to log
 			return __callProc__(cmd, out, out)
+
+def readFile(infile, header = True, d = None):
+	# Creates generator to read file line by line
+	first = True
+	checkFile(infile)
+	with open(infile, "r") as f:
+		for line in f:
+			line = line.strip()
+			if not first:
+				yield line.split(d)
+			else:
+				if d is None:
+					d = getDelim(line)
+				if header:
+					yield setHeader(line.split(d))
+				else:
+					yield line.split(d)
+				first = False
