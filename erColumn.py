@@ -1,4 +1,4 @@
-'''Adds column for ER +/- to usr data'''
+'''Adds column for ER +/- to ucr data'''
 
 from datetime import datetime
 from manifest import *
